@@ -1,0 +1,165 @@
+<template>
+  <div id="layoutSidenav_content">
+    <main>
+      <div class="container-fluid px-4">
+        <h1 class="mt-4">DANH SÁCH SẢN PHẨM</h1>
+        <ol class="breadcrumb mb-4">
+          <button type="button" class="btn btn-dark">
+            <router-link style="text-decoration: none; color: #fff" :to="{ name: 'create-product' }">Thêm
+              (+)</router-link>
+          </button>
+        </ol>
+        <!-- Button trigger modal -->
+
+        <!-- Modal -->
+
+        <div class="card mb-4">
+          <div class="card-header">
+            <i class="fas fa-table me-1"></i>
+          </div>
+          <div class="card-body">
+            <div class="form-group pull-right contain-search">
+              <input type="text" class="search form-control form-design" placeholder="Nhập từ khóa tìm kiếm"
+                @change="handleSearch" v-model="search" />
+            </div>
+            <span class="counter pull-right"></span>
+            <table class="table table-hover table-bordered results">
+              <thead>
+                <tr>
+                  <th class="col text-center">STT</th>
+                  <th class="col text-center">Tên sản phẩm</th>
+                  <th class="col text-center">Hình ảnh</th>
+                  <th class="col text-center">Giá</th>
+                  <th class="col text-center">Số lượng</th>
+                  <th class="col text-center">Ngày tạo</th>
+                  <th class="col text-center"></th>
+                  <th class="col text-center"></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(product, index) in datasearch" :key="product.product_id">
+                  <th scope="row" class="text-center">{{ index + 1 }}</th>
+                  <td class="text-center">{{ product.product_name }}</td>
+                  <td class="text-center">
+                    <img :src="'https://dacsancamau.com/storage/' +
+                      JSON.parse(product.product_img)[0]
+                      " alt="Hình ảnh" width="50px" />
+                  </td>
+
+                  <td class="text-center">
+                    {{ formatCurrency(product.product_price) }}
+                  </td>
+                  <td class="text-center">
+                    {{ product.product_quantity }}
+                  </td>
+                  <td class="text-center">
+                    {{ convertTime(product.created_at) }}
+                  </td>
+                  <td class="text-center">
+                    <button type="button" class="btn btn-sm btn-secondary design-button">
+                      <router-link style="text-decoration: none; color: #fff" :to="{
+                        name: 'update-product',
+                        params: { id: product.product_id },
+                      }">Edit</router-link>
+                    </button>
+                  </td>
+                  <td class="text-center">
+                    <el-popconfirm confirm-button-text="Yes" cancel-button-text="No" width="200"
+                      confirm-button-type="danger" title="Bạn có muốn xóa?" @confirm="handleDelete(product.product_id)"
+                      @cancel="cancelEvent">
+                      <template #reference>
+                        <el-button v-show="index !== editingIndex" type="danger">Delete</el-button>
+                      </template>
+                    </el-popconfirm>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="text-end">
+              <el-pagination v-model:current-page="currentPage" @current-change="handleCurrentChange" small background
+                layout="prev, pager, next" :total="Math.ceil(productsLength / pageSize) * 10" class="mt-4" />
+            </div>
+            <div v-show="datasearch.length === 0">
+              <p class="text-center">Không có sản phẩm nào</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+</template>
+<script setup>
+import { computed, onMounted, ref, reactive } from "vue";
+import { useProductStore } from "../stores/product";
+import { deleteProduct } from "../utils/productUtils";
+import { formatCurrency, convertTime } from "@/helpers/UtilHelper";
+import { showLoading } from "../helpers/LoadingHelper";
+const productStore = useProductStore();
+
+const currentPage = ref(1);
+const pageSize = 8;
+const productsLength = ref(0);
+
+const search = ref("");
+
+onMounted(async () => {
+  await productStore.fetchListProduct();
+});
+
+const handleSearch = () => {
+  console.log(search.value);
+};
+
+const datasearch = computed(() => {
+  const dataSearch = String(search.value).trim();
+  const startIndex = (currentPage.value - 1) * pageSize;
+  const listProduct = productStore.getListProduct;
+  if (!dataSearch) {
+    return listProduct.slice(startIndex, startIndex + pageSize);
+  }
+
+  return listProduct.filter((data) => {
+    return String(data.product_name)
+      .toLowerCase()
+      .includes(dataSearch.toLowerCase());
+  });
+});
+
+const handleDelete = async (category_id) => {
+  const loading = showLoading();
+  try {
+    await deleteProduct(category_id);
+    await productStore.fetchListProduct();
+  } catch (error) {
+    console.error('Error deleting category:', error);
+  } finally {
+    loading.close();
+  }
+
+};
+
+// observing current page
+const handleCurrentChange = (val) => {
+  currentPage.value = val;
+  console.log(`current page: ${val}`);
+};
+</script>
+
+<style scoped>
+.contain-search {
+  display: flex;
+}
+
+.form-design {
+  width: 220px;
+  margin-left: 1160px;
+}
+
+.design-input {
+  border: none;
+}
+
+.design-button {
+  padding: 4px 16px;
+}
+</style>
