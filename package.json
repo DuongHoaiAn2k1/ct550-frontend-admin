@@ -13,6 +13,7 @@
     "element-plus": "^2.4.4",
     "laravel-echo": "^1.16.1",
     "pinia": "^2.1.7",
+    "primevue": "^4.0.4",
     "pusher-js": "^8.4.0-rc2",
     "vue": "^3.4.31",
     "vue-router": "^4.2.5",

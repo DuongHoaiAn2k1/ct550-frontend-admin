@@ -2,12 +2,13 @@ import "./assets/main.css";
 
 import { createApp } from "vue";
 import { createPinia } from "pinia";
+import PrimeVue from "primevue/config";
 import router from "./router";
 import ElementPlus from "element-plus";
 import "element-plus/dist/index.css";
 import App from "./App.vue";
 import { useAuthStore } from "./stores/auth";
-import { initializeStores } from "./stores/storeInitializer";
+
 
 import Echo from 'laravel-echo';
 import Pusher from 'pusher-js';

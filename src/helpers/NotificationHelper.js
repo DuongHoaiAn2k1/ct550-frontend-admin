@@ -1,4 +1,5 @@
 import { ElNotification } from "element-plus";
+import { ElMessage } from "element-plus";
 
 function showSuccess(message) {
   ElNotification({
@@ -23,4 +24,20 @@ function showError(message) {
     type: "error",
   });
 }
-export { showSuccess, showWarning, showError };
+
+
+function showInfo(message) {
+  ElNotification({
+    title: "Info",
+    message: message,
+    type: "info",
+  });
+}
+
+const showSuccessMessage = (message) => {
+  ElMessage({
+    message: message,
+    type: "success",
+  });
+};
+export { showSuccess, showWarning, showError, showInfo, showSuccessMessage };

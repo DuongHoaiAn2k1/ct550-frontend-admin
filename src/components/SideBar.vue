@@ -46,6 +46,12 @@
             </div>
             ĐÁNH GIÁ
           </router-link>
+          <router-link class="nav-link" :to="{ name: 'assign-role' }">
+            <div class="sb-nav-link-icon">
+              <i class="fa-solid fa-gear"></i>
+            </div>
+            PHÂN QUYỀN
+          </router-link>
         </div>
       </div>
       <div class="sb-sidenav-footer"></div>
