@@ -14,9 +14,6 @@
         <!-- Modal -->
 
         <div class="card mb-4">
-          <div class="card-header">
-            <i class="fas fa-table me-1"></i>
-          </div>
           <div class="card-body">
             <div class="form-group pull-right contain-search">
               <input type="text" class="search form-control form-design" placeholder="Nhập từ khóa tìm kiếm"
@@ -30,7 +27,7 @@
                   <th class="col text-center">Tên sản phẩm</th>
                   <th class="col text-center">Hình ảnh</th>
                   <th class="col text-center">Giá</th>
-                  <th class="col text-center">Số lượng</th>
+                  <th class="col text-center">Khối lượng</th>
                   <th class="col text-center">Ngày tạo</th>
                   <th class="col text-center"></th>
                   <th class="col text-center"></th>
@@ -50,7 +47,7 @@
                     {{ formatCurrency(product.product_price) }}
                   </td>
                   <td class="text-center">
-                    {{ product.product_quantity }}
+                    {{ product.weight }} kg
                   </td>
                   <td class="text-center">
                     {{ convertTime(product.created_at) }}
@@ -146,13 +143,16 @@ const handleCurrentChange = (val) => {
 </script>
 
 <style scoped>
+:deep(.el-pagination .el-pager .is-active) {
+  background-color: black !important;
+}
+
 .contain-search {
   display: flex;
 }
 
 .form-design {
   width: 220px;
-  margin-left: 1160px;
 }
 
 .design-input {

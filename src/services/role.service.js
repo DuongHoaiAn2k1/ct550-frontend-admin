@@ -18,7 +18,7 @@ class RoleService {
     }
 
     async updateRole(id, data) {
-        return (await this.api.put(`/roles/${id}`, data)).data;
+        return (await this.api.patch(`/roles/${id}`, data)).data;
     }
 
     async deleteRole(id) {
@@ -30,11 +30,23 @@ class RoleService {
     }
 
     async updatePermission(id, data) {
-        return (await this.api.put(`/permissions/${id}`, data)).data;
+        return (await this.api.patch(`/permissions/${id}`, data)).data;
     }
 
     async deletePermission(id) {
         return (await this.api.delete(`/permissions/${id}`)).data;
+    }
+
+    async getPermissionsByRole (roleId) {
+        return (await this.api.get(`/roles/${roleId}/permissions`)).data;
+    }
+
+    async getPermissionsByRoleName (roleName) {
+        return (await this.api.get(`/roles/name/${roleName}/permissions`)).data;
+    }
+
+    async updatePermissionsForRole (roleId, permissionIds) {
+        return (await this.api.patch(`/roles/${roleId}/permissions`, {permission_ids: permissionIds})).data;
     }
 
 

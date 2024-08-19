@@ -5,13 +5,14 @@
         <h1 class="mt-4">DANH SÁCH KHÁCH HÀNG</h1>
 
         <div class="card mb-4">
-          <div class="card-header">
-            <i class="fas fa-table me-1"></i>
-          </div>
           <div class="card-body">
             <div class="form-group pull-right contain-search">
               <input type="text" class="search form-control form-design" placeholder="Nhập từ khóa tìm kiếm"
                 @change="handleSearch" v-model="search" />
+              <el-select v-model="currentRole" placeholder="Chọn" style="width: 160px;" size="large">
+                <el-option v-for="item in customerRoles" :key="item.id" :label="item.name" :value="item.name"
+                  :disabled="item.disabled" />
+              </el-select>
             </div>
             <span class="counter pull-right"></span>
             <table class="table table-hover table-bordered results">
@@ -26,6 +27,7 @@
                       <i class="fa-solid fa-sort"></i>
                     </button>
                   </th>
+                  <th class="col">Vai trò</th>
                   <th class="col">Thời gian tạo</th>
                   <th class="col">Thời gian cập nhật</th>
                   <th class="col">Chi tiết</th>
@@ -38,6 +40,7 @@
                   <td>{{ user.name }}</td>
                   <td>{{ user.email }}</td>
                   <td>{{ user.point }}</td>
+                  <td>{{ user.role }}</td>
                   <td>{{ convertTime(user.created_at) }}</td>
                   <td>{{ convertTime(user.updated_at) }}</td>
                   <td>
@@ -135,12 +138,22 @@
   </el-dialog>
 </template>
 <script setup>
-import userService from "@/services/user.service";
-import { onMounted, ref, computed } from "vue";
+import { onMounted, ref, computed, watch } from "vue";
 import { formatCurrency, convertTime } from "@/helpers/UtilHelper";
 import { showLoading } from "@/helpers/LoadingHelper";
 import { ElMessage, ElMessageBox } from "element-plus";
 import orderService from "@/services/order.service";
+import { useUserStore } from "../stores/user";
+import { useRoleStore } from "../stores/role";
+
+const userStore = useUserStore();
+const roleStore = useRoleStore();
+const currentRole = ref('')
+
+const customerRoles = computed(() => {
+  return roleStore.listRole.filter((role) => (role.name == 'normal_user' || role.name == 'loyal_customer'));
+})
+
 const sortOrderPoint = ref("ascending");
 // Define panigation var
 const currentPage = ref(1);
@@ -149,7 +162,6 @@ const listCustomerLength = ref(0);
 
 // End
 
-const listCustomer = ref([]);
 const search = ref("");
 const dialogTableVisible = ref(false);
 // Detail User
@@ -185,25 +197,24 @@ const fetchOrderByUser = async (id) => {
   }
 };
 
-const fetchListCustomer = async () => {
-  try {
-    const response = await userService.getListUser();
-    listCustomer.value = response.data;
-    listCustomerLength.value = response.length;
-    console.log(response);
-  } catch (error) {
-    console.log(error.response);
+
+watch(currentRole, async (newRole) => {
+  if (newRole) {
+    await userStore.fetchListUserByRole(newRole);
+  } else {
+    await userStore.fetchListUser();
   }
-};
+});
+
 
 const datasearch = computed(() => {
   const dataSearch = String(search.value).trim();
   const startIndex = (currentPage.value - 1) * pageSize;
   if (!dataSearch) {
-    return listCustomer.value.slice(startIndex, startIndex + pageSize);
+    return userStore.listUser.slice(startIndex, startIndex + pageSize);
   }
 
-  return listCustomer.value.filter((data) => {
+  return userStore.listUser.filter((data) => {
     return String(data.name).toLowerCase().includes(dataSearch.toLowerCase());
   });
 });
@@ -270,8 +281,10 @@ const sortedCustomers = computed(() => {
     }
   });
 });
-onMounted(() => {
-  fetchListCustomer();
+onMounted(async () => {
+  await userStore.fetchListUser();
+  await roleStore.fetchListRole();
+
 });
 
 const handleCurrentChange = (val) => {
@@ -281,6 +294,10 @@ const handleCurrentChange = (val) => {
 </script>
 
 <style scoped>
+:deep(.el-pagination .el-pager .is-active) {
+  background-color: black !important;
+}
+
 .yellow {
   color: yellow;
 }
@@ -308,7 +325,6 @@ const handleCurrentChange = (val) => {
 .form-design {
   width: 220px;
   /* margin-left: 993px; */
-  margin-left: 1160px;
 }
 
 .design-input {

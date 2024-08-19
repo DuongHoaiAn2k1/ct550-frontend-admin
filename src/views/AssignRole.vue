@@ -17,7 +17,15 @@
                                 @handle-delete="handleDeletePermission" @handle-create="handleCreatePermission"
                                 title="Tên quyền" description="Mô tả quyền" />
                         </el-tab-pane>
-                        <el-tab-pane label="Phân quyền">Assign</el-tab-pane>
+                        <el-tab-pane label="Phân quyền">
+                            <el-select v-model="role" placeholder="Select" size="large" style="width: 240px">
+                                <el-option v-for="item in listRole" :key="item.id" :label="item.name"
+                                    :value="item.name" />
+                            </el-select>
+                            <el-transfer v-model="permission" :data="transferData"
+                                :titles="['Danh sách quyền', 'Quyền hiện tại']" />
+                            <el-button size="large" class="mt-3" @click="updatePermissionsForRole">Cập nhật</el-button>
+                        </el-tab-pane>
                     </el-tabs>
 
 
@@ -28,16 +36,21 @@
 
 </template>
 <script setup>
-import { Calendar } from '@element-plus/icons-vue'
-import { computed, onMounted, ref, reactive } from "vue";
-import { showSuccessMessage } from '../helpers/NotificationHelper';
+import { computed, onMounted, ref, watch } from "vue";
+import { showSuccessMessage, showWarning } from '../helpers/NotificationHelper';
 import { showLoading } from '../helpers/LoadingHelper';
 import roleService from "../services/role.service";
 
 import RoleTable from '@/components/Tables/RoleTable.vue';
 
+const data = ref([]);
+const role = ref('');
+const permission = ref([]);
+
 const listRole = ref([]);
 const listPermission = ref([]);
+const transferData = ref([]);
+
 
 const fetchListRole = async () => {
     try {
@@ -54,10 +67,60 @@ const fetchListPermission = async () => {
         const response = await roleService.getPermissions();
         console.log("List permission: ", response);
         listPermission.value = response.data;
+
+        transferData.value = listPermission.value.map(permission => ({
+            key: permission.id,
+            label: permission.name,
+            description: permission.description
+        }));
+
     } catch (error) {
         console.log(error);
     }
 }
+
+const fetchPermissionsByRole = async (roleId) => {
+    try {
+        const response = await roleService.getPermissionsByRoleName(roleId);
+        const selectedPermissions = response.data;
+        permission.value = selectedPermissions.map(permission => permission.id);
+        console.log("Permissions for role:", selectedPermissions);
+    } catch (error) {
+        console.log(error);
+    }
+};
+
+watch(role, (newRole) => {
+    if (newRole) {
+        fetchPermissionsByRole(newRole);
+        // alert(newRole);
+    }
+});
+
+const updatePermissionsForRole = async () => {
+    try {
+        const selectedPermissions = permission.value;
+        const roleId = listRole.value.find(r => r.name === role.value)?.id;
+
+        if (!roleId) {
+            showWarning("Vui lòng chọn vai trò.");
+            return;
+        }
+        const loading = showLoading();
+
+        const response = await roleService.updatePermissionsForRole(roleId, selectedPermissions).finally(() => {
+            loading.close();
+            showSuccessMessage("Cập nhật quyền thành công");
+            console.log("Update permissions response: ", response);
+        })
+
+
+    } catch (error) {
+        console.log(error.response);
+    }
+}
+
+
 
 const handleUpdateRole = async (role) => {
     try {
@@ -145,6 +208,34 @@ onMounted(() => {
 </script>
 
 <style scoped>
+:deep(.demo-tabs .el-tabs__header) {
+    background-color: #333 !important;
+    color: white;
+}
+
+:deep(.demo-tabs .el-tabs__header .el-tabs__item) {
+    color: white;
+    /* Màu mặc định của tiêu đề */
+}
+
+:deep(.demo-tabs .el-tabs__header .is-active) {
+    color: black;
+    /* Màu khi click */
+}
+
+:deep(.el-transfer .el-transfer-panel) {
+    width: 20% !important;
+    border: 1px solid #6b778c !important;
+}
+
+:deep(.el-transfer__buttons button) {
+    background-color: black !important;
+}
+
+.el-transfer-panel {
+    width: 20% !important;
+}
+
 .demo-tabs>.el-tabs__content {
     padding: 32px;
     color: #6b778c;

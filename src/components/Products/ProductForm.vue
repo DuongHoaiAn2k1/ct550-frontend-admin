@@ -75,12 +75,12 @@
 
             <!-- Text input-->
             <div class="mb-3 row">
-                <label for="product_quantity" class="col-sm-4 col-form-label">SỐ LƯỢNG CÓ SẴN</label>
+                <label for="weight" class="col-sm-4 col-form-label">KHỐI LƯỢNG</label>
                 <div class="col-sm-8">
-                    <input type="text" class="form-control" id="product_quantity" name="product_quantity"
-                        placeholder="Số lượng có sẵn" v-model="productData.product_quantity" />
+                    <input type="text" class="form-control" id="weight" name="weight" placeholder="Khối lượng"
+                        v-model="productData.weight" />
                     <div class="ms-1 text-danger">
-                        {{ productQuantityError }}
+                        {{ productWeightError }}
                     </div>
                 </div>
             </div>
@@ -129,17 +129,17 @@ const productImgError = ref("");
 const productDesError = ref("");
 const categoryIdError = ref("");
 const productPriceError = ref("");
-const productQuantityError = ref("");
+const productWeightError = ref("");
 
 const schema = Yup.object().shape({
     product_name: Yup.string().required("Tên sản phẩm không được để trống"),
-    product_img: Yup.array()
+    product_img: Yup.array().of(Yup.mixed())
         .min(3, "Phải tải lên ít nhất 3 hình ảnh")
         .max(3, "Chỉ được tải lên tối đa 3 hình ảnh"),
     product_des: Yup.string().required("Mô tả sản phẩm không được để trống"),
     category_id: Yup.string().required("Danh mục sản phẩm không được để trống"),
     product_price: Yup.string().required("Giá bán sản phẩm không được để trống"),
-    product_quantity: Yup.string().required(
+    weight: Yup.string().required(
         "Số lượng sản phẩm không được để trống"
     ),
 });
@@ -158,7 +158,16 @@ const handleSubmit = (event) => {
     productDesError.value = null;
     categoryIdError.value = null;
     productPriceError.value = null;
-    productQuantityError.value = null;
+    productWeightError.value = null;
+
+    if (typeof productData.value.product_img === 'string') {
+        try {
+            productData.value.product_img = JSON.parse(productData.value.product_img);
+        } catch (e) {
+            // Nếu JSON.parse thất bại, giữ nguyên product_img
+        }
+    }
+
 
     schema
         .validate(productData.value, { abortEarly: false })
@@ -168,7 +177,7 @@ const handleSubmit = (event) => {
             productDesError.value = null;
             categoryIdError.value = null;
             productPriceError.value = null;
-            productQuantityError.value = null;
+            productWeightError.value = null;
 
             const productDataUpdate = new FormData();
             for (const key in productData.value) {
@@ -209,8 +218,8 @@ const handleSubmit = (event) => {
                     if (error.path === "product_price") {
                         productPriceError.value = error.message;
                     }
-                    if (error.path === "product_quantity") {
-                        productQuantityError.value = error.message;
+                    if (error.path === "weight") {
+                        productWeightError.value = error.message;
                     }
                 });
             }

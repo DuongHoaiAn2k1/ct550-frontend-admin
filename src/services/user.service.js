@@ -9,6 +9,10 @@ class UserService {
     return (await this.api.get("/list-user")).data;
   }
 
+  async getListUserByRole(role) {
+    return (await this.api.get(`/list-user/${role}`)).data;
+  }
+
   async getAll() {
     return (await this.api.get("/")).data;
   }

@@ -80,13 +80,13 @@
                 </tr>
             </tbody>
         </table>
-        <!-- <div class="text-end">
+        <div class="text-end">
             <el-pagination v-model:current-page="currentPage" @current-change="handleCurrentChange" small background
-                layout="prev, pager, next" :total="Math.ceil(rolesLength / pageSize) * 10" class="mt-4" />
+                layout="prev, pager, next" :total="Math.ceil(listData.length / pageSize) * 10" class="mt-4" />
         </div>
         <div v-show="datasearch.length === 0">
             <p class="text-center">Không có sản phẩm nào</p>
-        </div> -->
+        </div>
     </div>
 </template>
 <script setup>
@@ -195,6 +195,11 @@ const handleCurrentChange = (val) => {
 
 </script>
 <style scoped>
+:deep(.el-pagination .el-pager .is-active) {
+    background-color: black !important;
+}
+
+
 .contain-search {
     display: flex;
 }

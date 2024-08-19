@@ -33,6 +33,10 @@ class ProductService {
   async updateQuantity(data, id) {
     return (await this.api.patch(`/${id}`, data)).data;
   }
+
+  async fetchListProductBatch() {
+    return (await this.api.get("/batch/list")).data;
+  }
 }
 
 export default new ProductService();

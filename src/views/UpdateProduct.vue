@@ -8,19 +8,21 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { useProductStore } from "../stores/product";
 import productService from "../services/product.service";
 import ProductForm from "../components/Products/ProductForm.vue";
+import { showSuccess } from '../helpers/NotificationHelper'
 import { useRoute } from "vue-router";
 
 const route = useRoute();
 const productStore = useProductStore();
 const product = ref({});
+const productId = computed(() => route.params.id);
 
 onMounted(async () => {
-  const productId = route.params.id;
-  const response = await productService.get(productId);
+
+  const response = await productService.get(productId.value);
   product.value = response.data;
   setTimeout(() => {
     console.log('Product fetch::::: upate::::', product.value);
@@ -29,18 +31,11 @@ onMounted(async () => {
 
 const updateProduct = async (productData) => {
   try {
-    const response = await productStore.updateProduct(product.id, productData);
-    ElNotification({
-      title: "Thành công",
-      message: "Cập nhật sản phẩm thành công!",
-      type: "success",
-    });
+    const response = await productService.update(productId.value, productData);
+    console.log('Update product response: ', response);
+    showSuccess('Cập nhật sản phẩm thành công');
   } catch (error) {
-    ElNotification({
-      title: "Thất bại",
-      message: "Cập nhật sản phẩm thất bại!",
-      type: "error",
-    });
+    console.log(error.response);
   }
 };
 </script>
