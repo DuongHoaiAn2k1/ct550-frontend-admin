@@ -11,6 +11,7 @@
 import AppHeader from "@/components/AppHeader.vue";
 import AppFooter from "@/components/AppFooter.vue";
 import SideBar from "@/components/SideBar.vue";
+
 </script>
 <style>
 body {

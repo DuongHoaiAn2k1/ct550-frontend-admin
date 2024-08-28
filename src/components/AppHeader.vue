@@ -25,7 +25,11 @@
     <ul class="navbar-nav ms-auto ms-md-0 me-3 me-lg-4">
       <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" id="navbarUserDropdown" @click="showNotificationBox"><i
-            class="fa-solid fa-bell"></i></a>
+            class="fa-solid fa-bell"></i>
+          <span class="badge rounded-pill badge-notification bg-danger sub-cart-design">{{
+            unReadNumber
+            }}</span></a>
+
         <div v-if="isNotiticationBox" class="notification-container">
           <Notification />
         </div>
@@ -47,19 +51,41 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
-import authService from "@/services/auth.service";
+import { onMounted, ref, watch, computed } from "vue";
 import { useAuthStore } from "@/stores/auth";
+import notificationService from '@/services/notification.service';
+// import { useNotificationStore } from "../stores/notification";
 import { ElMessage } from "element-plus";
 import { useRouter } from "vue-router";
 import Notification from "./Notifications/Notification.vue";
 
+import { initializeEcho } from "../pusher/echoConfig";
+import { showMessageBTRight } from "@/helpers/NotificationHelper";
+
+const echoInstance = initializeEcho();
+
+
+
 const isNotiticationBox = ref(false);
 const router = useRouter();
 const authStore = useAuthStore();
+const unReadNumber = ref(0);
+// const notificationStore = useNotificationStore();
 
+// const unReadNumber = computed(() => notificationStore.count_unread);
 const showNotificationBox = () => {
   isNotiticationBox.value = !isNotiticationBox.value;
+
+}
+
+const fetchNotifications = async () => {
+  try {
+    const response = await notificationService.getAll();
+    console.log("FetchNotifications: ", response);
+    unReadNumber.value = response.count_unread;
+  } catch (error) {
+    console.log(error)
+  }
 }
 const handleLogout = async () => {
   try {
@@ -75,6 +101,40 @@ const handleLogout = async () => {
   }
 };
 
+echoInstance.channel('admin-channel')
+  .listen('.order.created', async (event) => {
+    // const response = await notificationStore.getAll();
+    console.log('Chanel');
+    fetchNotifications()
+    setTimeout(() => {
+      showMessageBTRight('Đơn hàng mới', 'Vừa tiếp nhận đơn hàng mới');
+
+    }, 500);
+
+  });
+
+onMounted(() => {
+  console.log("Mountttttttttttt");
+  fetchNotifications();
+  // await notificationStore.getAll();
+})
+
+watch(isNotiticationBox, async (newValue) => {
+  if (newValue == false) {
+    // await notificationStore.getAll();
+    console.log('False!!!!!!!!!!');
+    fetchNotifications();
+  } else {
+    const response = await notificationService.adminReadAll();
+    console.log('TRueeeeeeeeeeeeeeeeeeeee');
+    fetchNotifications();
+
+  }
+});
+
+// watch(notificationStore.count_unread, (newValue) => {
+//   unReadNumber.value = newValue;
+// })
 const showLogoutSuccess = () => {
   ElMessage({
     message: "Đăng xuất thành công.",

@@ -76,7 +76,7 @@
                   <td>
                     <el-popconfirm confirm-button-text="Yes" cancel-button-text="No" width="200"
                       confirm-button-type="danger" title="Bạn có muốn xóa?"
-                      @confirm="handleDelete(category.category_id)" @cancel="cancelEvent">
+                      @confirm="handleDelete(category.category_id)">
                       <template #reference>
                         <el-button v-show="index !== editingIndex" type="danger">Delete</el-button>
                       </template>

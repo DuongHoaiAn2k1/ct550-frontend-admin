@@ -1,77 +1,110 @@
 <template>
-    <div class="notification-list">
-        <div class="notification" v-for="notification in notifications" :key="notification.id">
-            <img :src="notification.image" class="avatar" alt="User avatar">
-            <div class="notification-content">
-                <p>
-                    <strong>{{ notification.name }}</strong> {{ notification.action }}
-                    <a href="#">{{ notification.linkText }}</a>
-                </p>
-                <span class="time">{{ notification.time }}</span>
+    <div class="notification-list-wrapper">
+        <div class="notification-list" :class="{ 'scrollable': isAllShown }">
+            <div class="notification" :class="notification.is_admin_read ? 'notifcation-default' : 'notification-read'"
+                v-for="notification in notificationsToShow" :key="notification.id">
+                <!-- <img src="" class="avatar" alt="User avatar"> -->
+                <span class="avatar"><i class="fa-solid fa-circle-exclamation"></i></span>
+                <div class="notification-content">
+                    <p style="font-size: 14px;">
+                        <strong>{{ getNotificationMessage(notification.route_name) }}</strong>&nbsp;
+                        <span>{{ getSubNotification(notification.route_name) }}&nbsp;{{
+                            convertTime(notification.created_at) }} </span>&nbsp;
+                        <router-link :to="{ name: notification.route_name }">Đi đến</router-link>
+                    </p>
+                </div>
             </div>
         </div>
-        <button class="see-all-btn">See all notifications</button>
+        <!-- Nút để chuyển đổi giữa hiển thị giới hạn và tất cả thông báo -->
+        <button class="toggle-btn" @click="toggleNotifications">
+            {{ isAllShown ? 'Thu gọn' : 'Xem tất cả' }}
+        </button>
     </div>
 </template>
 
-<script>
-export default {
-    data() {
-        return {
-            notifications: [
-                {
-                    id: 1,
-                    name: "Sara Salah",
-                    action: "replied on the",
-                    linkText: "Upload Image",
-                    time: "2m",
-                    image: "https://via.placeholder.com/40"
-                },
-                {
-                    id: 2,
-                    name: "Slick Net",
-                    action: "start following you",
-                    linkText: "",
-                    time: "45m",
-                    image: "https://via.placeholder.com/40"
-                },
-                {
-                    id: 3,
-                    name: "Jane Doe",
-                    action: "Like Your reply on",
-                    linkText: "Test with TDD",
-                    time: "1h",
-                    image: "https://via.placeholder.com/40"
-                },
-                {
-                    id: 4,
-                    name: "Abigail Bennett",
-                    action: "start following you",
-                    linkText: "",
-                    time: "3h",
-                    image: "https://via.placeholder.com/40"
-                }
-            ]
-        };
-    }
+<script setup>
+import { onMounted, ref, computed } from 'vue';
+import { useNotificationStore } from '../../stores/notification';
+import { convertTime } from '@/helpers/UtilHelper';
+const notificationStore = useNotificationStore();
+
+const isAllShown = ref(false);
+
+const notificationsToShow = computed(() => {
+    return isAllShown.value ? notificationStore.notifications : notificationStore.notifications.slice(0, 5);
+});
+
+
+const toggleNotifications = () => {
+    isAllShown.value = !isAllShown.value;
+
+
 };
+
+const notificationOptions = {
+    'order': {
+        message: 'Có đơn hàng mới',
+        sub: 'Đơn hàng được tạo vào lúc'
+    }
+}
+
+const getNotificationMessage = (routeName) => {
+    return notificationOptions[routeName]?.message || 'Thông báo không xác định';
+};
+
+
+const getSubNotification = (routeName) => {
+    return notificationOptions[routeName]?.sub || 'Thông báo không xác định';
+}
+
+onMounted(async () => {
+    await notificationStore.getAll();
+});
 </script>
 
 <style scoped>
-.notification-list {
+.notification-list-wrapper {
     width: 300px;
-    border: 1px solid #e1e4e8;
+    /* border: 1px solid #e1e4e8; */
+    border: 1px solid #99c5ff;
+
     border-radius: 6px;
     background-color: #ffffff;
     padding: 10px;
+    position: relative;
+    /* Đặt vị trí tương đối để chứa nút cố định */
+}
 
+.notification-list {
+    max-height: 300px;
+    /* Đặt chiều cao tối đa để kích hoạt cuộn */
+    overflow-y: auto;
+    /* Cho phép cuộn dọc khi chiều cao nội dung vượt quá chiều cao tối đa */
+    margin-bottom: 50px;
+    /* Tạo khoảng trống cho nút cố định */
 }
 
 .notification {
     display: flex;
     align-items: center;
     padding: 10px;
-    border-bottom: 1px solid #e1e4e8;
+    /* border-bottom: 1px solid #e1e4e8; */
+    border-bottom: 1px solid #a5b8d2;
+
+}
+
+.notification-read {
+    background-color: #eac6c6;
+
+}
+
+.notification-default {
+    background-color: #fff;
+
+}
+
+.notification:hover {
+    background-color: #c2c9ce;
 }
 
 .notification:last-child {
@@ -79,8 +112,8 @@ export default {
 }
 
 .avatar {
-    width: 40px;
-    height: 40px;
+    width: 20px;
+    height: 20px;
     border-radius: 50%;
     margin-right: 10px;
 }
@@ -104,19 +137,24 @@ export default {
     color: #586069;
 }
 
-.see-all-btn {
-    width: 100%;
+.toggle-btn {
+    width: 95%;
     padding: 10px;
     border: none;
-    background-color: #0366d6;
+    background-color: #000;
     color: #ffffff;
     text-align: center;
     cursor: pointer;
     border-radius: 6px;
-    margin-top: 10px;
+    position: absolute;
+    /* Đặt vị trí cố định cho nút */
+    bottom: 10px;
+    /* Cố định nút ở phía dưới cùng của container */
+    left: 10px;
+    /* Canh nút sang trái với khoảng cách 10px */
 }
 
-.see-all-btn:hover {
-    background-color: #0356b0;
+.toggle-btn:hover {
+    background-color: #333;
 }
 </style>

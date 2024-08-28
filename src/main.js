@@ -9,28 +9,27 @@ import "element-plus/dist/index.css";
 import App from "./App.vue";
 import { useAuthStore } from "./stores/auth";
 
+// import Echo from 'laravel-echo';
+// import Pusher from 'pusher-js';
 
-import Echo from 'laravel-echo';
-import Pusher from 'pusher-js';
+// window.Pusher = Pusher;
 
-window.Pusher = Pusher;
+// window.Echo = new Echo({
+//     broadcaster: 'pusher',
+//     key: '61b81b31e1b968bac959',
+//     cluster: 'ap1',
+//     forceTLS: true
+// });
 
-window.Echo = new Echo({
-    broadcaster: 'pusher',
-    key: '61b81b31e1b968bac959',
-    cluster: 'ap1',
-    forceTLS: true
-});
+// window.Echo.connector.pusher.connection.bind('connected', () => {
+//     console.log('Pusher connected successfully');
+// });
 
-window.Echo.connector.pusher.connection.bind('connected', () => {
-    console.log('Pusher connected successfully');
-});
+// window.Echo.channel('admin-channel')
+//     .listen('.user.registered', (event) => {
 
-window.Echo.channel('admin-channel')
-    .listen('.user.registered', (event) => {
-
-        alert("New user registered");
-    });
+//         alert("New user registered");
+//     });
 
 const app = createApp(App);
 const pinia = createPinia();

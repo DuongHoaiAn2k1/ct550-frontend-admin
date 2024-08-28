@@ -40,4 +40,12 @@ const showSuccessMessage = (message) => {
     type: "success",
   });
 };
-export { showSuccess, showWarning, showError, showInfo, showSuccessMessage };
+
+const showMessageBTRight = (title, message) => {
+  ElNotification({
+    title: title,
+    message: message,
+    position: 'bottom-right',
+  })
+}
+export { showSuccess, showWarning, showError, showInfo, showSuccessMessage, showMessageBTRight };

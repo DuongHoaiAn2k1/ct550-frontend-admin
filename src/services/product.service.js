@@ -21,6 +21,9 @@ class ProductService {
     return (await this.api.get(`/${id}`)).data;
   }
 
+  async getProductByCategoryName(data) {
+    return (await this.api.post("/name", data)).data;
+  }
   async update(id, data) {
     return (await this.api.post(`/${id}`, data)).data;
   }
