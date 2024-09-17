@@ -27,8 +27,8 @@
         <a class="nav-link dropdown-toggle" id="navbarUserDropdown" @click="showNotificationBox"><i
             class="fa-solid fa-bell"></i>
           <span class="badge rounded-pill badge-notification bg-danger sub-cart-design">{{
-            unReadNumber
-            }}</span></a>
+            unReadNumber || 0
+          }}</span></a>
 
         <div v-if="isNotiticationBox" class="notification-container">
           <Notification />
@@ -70,6 +70,7 @@ const isNotiticationBox = ref(false);
 const router = useRouter();
 const authStore = useAuthStore();
 const unReadNumber = ref(0);
+const userId = computed(() => authStore.admin_id);
 // const notificationStore = useNotificationStore();
 
 // const unReadNumber = computed(() => notificationStore.count_unread);
@@ -113,9 +114,16 @@ echoInstance.channel('admin-channel')
 
   });
 
+
+
 onMounted(() => {
   console.log("Mountttttttttttt");
   fetchNotifications();
+
+  console.log("UserId: ", userId.value);
+  // if (localStorage.getItem("processRefreshToken") == "true") {
+  //   router.push({ name: "token" });
+  // }
   // await notificationStore.getAll();
 })
 
@@ -132,9 +140,6 @@ watch(isNotiticationBox, async (newValue) => {
   }
 });
 
-// watch(notificationStore.count_unread, (newValue) => {
-//   unReadNumber.value = newValue;
-// })
 const showLogoutSuccess = () => {
   ElMessage({
     message: "Đăng xuất thành công.",

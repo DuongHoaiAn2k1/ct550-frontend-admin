@@ -1,13 +1,6 @@
 import axios from "axios";
-import { useAuthStore } from "@/stores/auth";
-import { ElNotification } from "element-plus";
-const showInfo = () => {
-  ElNotification({
-    title: "Info",
-    message: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
-    type: "info",
-  });
-};
+import Cookies from "js-cookie";
+
 const commonConfig = {
   headers: {
     Accept: "application/json",
@@ -22,8 +15,7 @@ export default (baseURL) => {
 
   instance.interceptors.request.use(
     (config) => {
-      const access_token = localStorage.getItem("access_token");
-      // console.log("My access_token: ", access_token);
+      const access_token = Cookies.get("access_token");
       if (access_token) {
         config.headers.Authorization = `Bearer ${access_token}`;
       }
@@ -41,51 +33,68 @@ export default (baseURL) => {
     async (error) => {
       if (
         error.request &&
-        error.response.status === 500 &&
-        error.response.data.message === "Token has expired"
+        error.response.status == 500 &&
+        error.response.data.message == 'Attempt to read property "id" on null'
+        
       ) {
-        const authStore = useAuthStore();
-        const refresh_token = localStorage.getItem("refresh_token");
+        
+        window.location.href = "https://client.dacsancamau.com:3002/tokenProcess";
 
-        const newConfig = error.config;
-        newConfig.headers.Authorization = `Bearer ${refresh_token}`;
-        try {
-          // Thực hiện lại request với refresh token mới
-          const response = await axios(newConfig);
-          return response;
-        } catch (error) {
-          // Xử lý lỗi khi request với refresh token mới
-          return Promise.reject(error);
-        }
-      }
-      if (
-        error.request &&
-        error.response.status === 401 &&
-        error.response.data.error === "Access Token has expired"
-      ) {
-        //
-        // alert("Access Token has expired");
-        window.location.href = "http://localhost:3002/tokenProcess";
       }
 
       if (
         error.request &&
-        error.response.status === 401 &&
-        error.response.statusText == "Unauthorized"
+        error.response.status == 500 &&
+        error.response.data.message == 'Could not send message: Attempt to read property "id" on null'
+        
       ) {
-        window.location.href = "http://localhost:3002/tokenProcess";
+        
+        window.location.href = "https://client.dacsancamau.com:3002/tokenProcess";
+
       }
 
+      if(error.request && error.response.status == 401 && error.response.statusText == "Unauthorized"){
+      
+        window.location.href = "https://client.dacsancamau.com:3002/tokenProcess";
+        // localStorage.setItem("processRefreshToken", true);
+        // alert("Ngu");
+      }
       if (
         error.request &&
-        error.response.status === 500 &&
-        error.response.data.message === "Attempt to read property 'id' on null"
-        // error.response.data.message === "Attempt to read property 'id' on null"
+        error.response.status == 500 &&
+        error.response.data.message == "Token has expired"
       ) {
-        // alert("Refresh Token has expired");
-        window.location.href = "http://localhost:3002/tokenProcess";
+       
+        window.location.href = "https://client.dacsancamau.com:3002/tokenProcess";
+        
       }
 
+      if(error.request &&
+        error.response.status == 417 &&
+        error.response.data.message == "Refresh token expired"){
+          Cookies.set("isAdminLoggedIn", false);
+          Cookies.remove("access_token");
+          Cookies.remove("refresh_token");
+          Cookies.remove("admin_id");
+          window.location.href = "https://client.dacsancamau.com:3002/login";
+      }
+      // if (
+      //   error.request &&
+      //   error.response.status == 401 &&
+      //   error.response.data.error == "Access Token has expired"
+      //   // error.response.statusText === "Unauthorized"
+      // ) {
+      //   window.location.href = "http://localhost:3001/tokenProcess";
+      // }
+
+      // if (
+      //   error.request &&
+      //   error.response.status == 401 &&
+      //   error.response.statusText == "Unauthorized"
+      // ) {
+      //   window.location.href = "http://localhost:3001/tokenProcess";
+      // }
+      
       return Promise.reject(error);
     }
   );

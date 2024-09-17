@@ -110,13 +110,14 @@
                         <td>{{ formatCurrency(data.shipping_fee) }}</td>
                         <td>{{ convertTime(data.created_at) }}</td>
                         <td>
-                          <span v-show="data.status == '1'"
+                          <span v-show="data.status == 'preparing'"
                             class="badge rounded-pill text-info font-size-11 task-status">Đang chuẩn bị</span>
-                          <span v-show="data.status == '2'"
+                          <span v-show="data.status == 'shipping'"
                             class="badge rounded-pill orange font-size-11 task-status">Đang giao</span>
-                          <span v-show="data.status == '3'"
+                          <span v-show="data.status == 'delivered'"
                             class="badge rounded-pill text-success font-size-11 task-status">Đã giao</span>
-                          <span v-show="data.status == '0'" class="badge rounded-pill red font-size-11 task-status">Đã
+                          <span v-show="data.status == 'cancelled'"
+                            class="badge rounded-pill red font-size-11 task-status">Đã
                             hủy</span>
                         </td>
                         <td>
@@ -233,7 +234,7 @@ const handleDetailUser = (id, name, point) => {
   nameOfUser.value = name;
   pointUsed.value = point;
   fetchOrderByUser(id);
-  const loading = showLoading(text = 'Đang tải...');
+  const loading = showLoading('Đang tải...');
   setTimeout(() => {
     loading.close();
     dialogTableVisible.value = true;

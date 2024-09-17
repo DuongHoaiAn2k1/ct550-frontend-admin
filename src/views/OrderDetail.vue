@@ -6,7 +6,7 @@
 
         <div class="mb-4">
           <section class="h-100 gradient-custom">
-            <div class="container h-100">
+            <div class=" h-100">
               <div class="row">
                 <div class="card" style="border-radius: 10px">
                   <div class="card-header px-4 py-2">
@@ -17,10 +17,10 @@
                     <p>
                       Trạng thái:
                       <select v-model="orderData.status">
-                        <option value="1">Đang chuẩn bị</option>
-                        <option value="2">Đang giao</option>
-                        <option value="3">Đã giao</option>
-                        <option value="0">Đã hủy</option>
+                        <option value="preparing">Đang chuẩn bị</option>
+                        <option value="shipping">Đang giao</option>
+                        <option value="delivered">Đã giao</option>
+                        <option value="cancelled">Đã hủy</option>
                       </select>
                     </p>
                     <p>
@@ -79,14 +79,14 @@
                           </div>
                           <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
                             <p class="text-muted mb-0 small">
-                              {{ formatCurrency(data.product.product_price) }}
+                              {{ formatCurrency(data.total_cost_detail / data.quantity) }}
                             </p>
                           </div>
                           <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
                             <p class="text-muted mb-0 small">
                               {{
                                 formatCurrency(
-                                  data.product.product_price * data.quantity
+                                  data.total_cost_detail
                                 )
                               }}
                             </p>
@@ -109,12 +109,8 @@
                         {{ address.name }}
                       </p>
                       <p class="text-muted mb-0">
-                        <span class="fw-bold me-4">Hỗ trợ ship</span>
-                        <span class="text-danger">-
-                          {{
-                            ((orderData.shipping_fee * 0.3) / 0.7).toFixed(0)
-                          }}
-                          ₫</span>
+                        <span class="fw-bold me-4">Phí giao hàng</span>
+                        {{ formatCurrency(orderData.shipping_fee) }}
                       </p>
                     </div>
 
@@ -124,8 +120,9 @@
                         {{ address.phone }}
                       </p>
                       <p class="text-muted mb-0">
-                        <span class="fw-bold me-4">Phí giao hàng</span>
-                        {{ formatCurrency(orderData.shipping_fee) }}
+                        <span class="fw-bold me-4">Điểm dùng</span>
+                        - {{ orderData.point_used_order }} (
+                        {{ formatCurrency(orderData.point_used_order * 1000) }})
                       </p>
                     </div>
 
@@ -136,9 +133,7 @@
                         {{ address.district }}, {{ address.city }}
                       </p>
                       <p class="text-muted mb-0">
-                        <span class="fw-bold me-4">Điểm dùng</span>
-                        - {{ orderData.point_used_order }} (
-                        {{ formatCurrency(orderData.point_used_order * 1000) }})
+
                       </p>
                     </div>
                     <div class="d-flex justify-content-between">
@@ -157,15 +152,26 @@
                       TỔNG PHẢI THANH TOÁN:
                       <span class="h2 mb-0 ms-2">{{
                         formatCurrency(orderData.total_cost)
-                      }}</span>
+                        }}</span>
                     </h5>
                   </div>
                 </div>
               </div>
             </div>
           </section>
+          <el-button class="mt-2" @click="showInvoice = true">Xuất hóa đơn</el-button>
         </div>
       </div>
+      <el-dialog v-model="showInvoice" title="" width="600" destroy-on-close center>
+        <Invoice :customerName="address.name" :billId="orderData.bill_id" :date="orderData.created_at"
+          :items="orderData" />
+        <template #footer>
+          <div class="dialog-footer">
+            <el-button @click="showInvoice = false">Cancel</el-button>
+
+          </div>
+        </template>
+      </el-dialog>
     </main>
   </div>
 </template>
@@ -175,10 +181,12 @@ import orderService from "@/services/order.service";
 import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import { ElLoading, ElNotification, ElMessage } from "element-plus";
+import Invoice from "../components/Invoice/Invoice.vue";
 const route = useRoute();
 const orderId = route.params.id;
 const address = ref([]);
 const orderData = ref([]);
+const showInvoice = ref(false);
 
 const showUpdateSuccess = () => {
   ElMessage({
@@ -191,7 +199,7 @@ const fetchOrder = async () => {
     const response = await orderService.get(orderId);
     orderData.value = response.data;
     address.value = JSON.parse(response.data.order_address);
-    console.log(response);
+    console.log("Detail of order: ", response);
   } catch (error) {
     console.log(error.response);
   }

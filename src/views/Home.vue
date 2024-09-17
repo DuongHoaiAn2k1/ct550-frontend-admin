@@ -21,13 +21,22 @@
 
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
               </div>
-              <form @submit="handleCreate">
+              <form @submit="handleCreate" enctype="multipart/form-data">
                 <div class="modal-body text-center">
-                  <h5 style="font-weight: 600">Tên danh mục</h5>
-                  <input name="category_name" type="text" v-model="dataCreate.category_name" />
-                  <p>
-                    <span class="text-danger">{{ categoryNameError }}</span>
-                  </p>
+                  <div>
+                    <h6 style="font-weight: 600">Tên danh mục</h6>
+                    <input name="category_name" type="text" v-model="dataCreate.category_name" />
+                    <p>
+                      <span class="text-danger">{{ categoryNameError }}</span>
+                    </p>
+                  </div>
+                  <div>
+                    <h6 style="font-weight: 600">Hình ảnh</h6>
+                    <input name="image" type="file" @change="handleImageUpload" />
+                    <p>
+                      <span class="text-danger">{{ imageError }}</span>
+                    </p>
+                  </div>
                 </div>
 
                 <div class="modal-footer">
@@ -53,6 +62,7 @@
                 <tr>
                   <th>STT</th>
                   <th class="col">Tên danh mục</th>
+                  <th class="col">Hình ảnh</th>
                   <th class="col">Thời gian tạo</th>
                   <th class="col">Thời gian cập nhật</th>
                   <th class="col"></th>
@@ -66,6 +76,8 @@
                     <input type="text" v-model="category.category_name" :readonly="index !== editingIndex"
                       :class="{ 'design-input': index !== editingIndex }" />
                   </td>
+                  <td class="text-center"><img :src="'https://dacsancamau.com/storage/' + category.image"
+                      style="width: 50px; height: 50px" /></td>
                   <td>{{ convertTime(category.created_at) }}</td>
                   <td>{{ convertTime(category.updated_at) }}</td>
                   <td>
@@ -90,8 +102,9 @@
               </tbody>
             </table>
             <div class="text-end">
-              <el-pagination v-model:current-page="currentPage" @current-change="handleCurrentChange" small background
-                layout="prev, pager, next" :total="Math.ceil(categoryStore.length / pageSize) * 10" class="mt-4" />
+              <el-pagination v-model:current-page="currentPage" @current-change="handleCurrentChange" background
+                layout="prev, pager, next" :total="Math.ceil(categoryStore.length / pageSize) * 10" class="mt-4"
+                size="default" />
             </div>
             <div v-show="datasearch.length == 0">
               <p class="text-center">Không có danh mục nào</p>
@@ -123,7 +136,7 @@ const search = ref("");
 const editingIndex = ref(null);
 const dataCreate = reactive({
   category_name: "",
-  category_img: "",
+  image: "",
 });
 
 onMounted(async () => {
@@ -182,29 +195,53 @@ const handleDelete = async (category_id) => {
 };
 
 const categoryNameError = ref(null);
+const imageError = ref(null);
 
 // Hanlde create new category
 const handleCreate = async (event) => {
   event.preventDefault();
   categoryNameError.value = null;
-
+  imageError.value = null;
   try {
     await schema.validate(dataCreate, { abortEarly: false });
     console.log(dataCreate);
-
     const loading = showLoading();
-    await createCategory(dataCreate);
+
+    const data = new FormData();
+    data.append("category_name", dataCreate.category_name);
+
+    if (dataCreate.image) {
+      data.append("image", dataCreate.image);
+    }
+
+    await createCategory(data).finally(() => {
+      loading.close();
+    });
+
+    dataCreate.category_name = "";
+    dataCreate.image = null;
     await categoryStore.fetchListCategory();
-    loading.close();
+
+
   } catch (errors) {
     errors.inner.forEach((error) => {
       if (error.path === "category_name") {
         categoryNameError.value = error.message;
       }
+      if (error.path === "image") {
+        imageError.value = error.message;
+      }
     });
   }
 };
 
+const handleImageUpload = (event) => {
+  const file = event.target.files[0];
+  if (file) {
+    dataCreate.image = file;
+    console.log(file);
+  }
+};
 
 const handleCurrentChange = (val) => {
   currentPage.value = val;

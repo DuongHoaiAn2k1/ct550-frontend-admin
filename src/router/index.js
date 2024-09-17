@@ -183,7 +183,7 @@ const routes = [
   {
     path: "/tokenProcess",
     name: "token",
-    component: () => import("@/components/ProcessToken.vue"),
+    component: () => import("@/helps/Token/TokenProcess.vue"),
   },
 
   { path: "/assign-role",
@@ -198,7 +198,67 @@ const routes = [
         showWarning();
       }
     },
-  }
+  },
+
+  {
+    path: "/refund",
+    name: "refund",
+    component: () => import("@/views/Refund.vue"),
+    beforeEnter: (to, from, next) => {
+      const authStore = useAuthStore();
+      if (authStore.isAdminLoggedIn) {
+        next();
+      } else {
+        next({ name: "login" });
+        showWarning();
+      }
+    },
+  },
+
+  {
+    path: "/message",
+    name: "message",
+    component: () => import("@/views/Message.vue"),
+    beforeEnter: (to, from, next) => {
+      const authStore = useAuthStore();
+      if (authStore.isAdminLoggedIn) {
+        next();
+      } else {
+        next({ name: "login" });
+        showWarning();
+      }
+    },
+  },
+
+  {
+    path: "/promotion",
+    name: "promotion",
+    component: () => import("@/views/Promotion.vue"),
+    beforeEnter: (to, from, next) => {
+      const authStore = useAuthStore();
+      if (authStore.isAdminLoggedIn) {
+        next();
+      } else {
+        next({ name: "login" });
+        showWarning();
+      }
+    },
+  },
+
+  {
+    path: "/staff",
+    name: "staff",
+    component: () => import("@/views/Staff.vue"),
+    beforeEnter: (to, from, next) => {
+      const authStore = useAuthStore();
+      if (authStore.isAdminLoggedIn) {
+        next();
+      } else {
+        next({ name: "login" });
+        showWarning();
+      }
+    },
+  },
   
 ];
 

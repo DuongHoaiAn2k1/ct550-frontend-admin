@@ -29,6 +29,10 @@ class UserService {
   async filterUser(data) {
     return (await this.api.post("/filter/users", data)).data;
   }
+
+  async getListUserWithRole() {
+    return (await this.api.get("/role/user/get-list")).data;
+  }
 }
 
 export default new UserService();
