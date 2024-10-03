@@ -34,6 +34,7 @@
 import ProductTable from "../components/Warehouse/ProductTable.vue";
 import BatchTable from "../components/Warehouse/BatchTable.vue";
 
+
 // observing current pag
 </script>
 

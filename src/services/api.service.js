@@ -73,9 +73,9 @@ export default (baseURL) => {
         error.response.status == 417 &&
         error.response.data.message == "Refresh token expired"){
           Cookies.set("isAdminLoggedIn", false);
-          Cookies.remove("access_token");
-          Cookies.remove("refresh_token");
-          Cookies.remove("admin_id");
+          // Cookies.remove("access_token");
+          // Cookies.remove("refresh_token");
+          // Cookies.remove("admin_id");
           window.location.href = "https://client.dacsancamau.com:3002/login";
       }
       // if (

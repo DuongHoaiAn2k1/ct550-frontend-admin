@@ -184,8 +184,8 @@
 
                             <el-select v-model="productSelect" placeholder="Chọn sản phẩm" style="width: 180px"
                                 clearable multiple>
-                                <el-option v-for="item in lisProduct" :key="item.product_id" :label="item.product_name"
-                                    :value="item" />
+                                <el-option v-for="data in filteredProducts" :key="data.product_id"
+                                    :label="data.product_name" :value="data.product_id" />
                             </el-select>
                         </div>
                         <div class="mt-4">
@@ -245,10 +245,9 @@ const endDateFilter = ref("");
 const dateSelect = ref("");
 const discountError = ref('');
 const categorySelect = ref("");
-const lisProduct = ref([]);
+const listProduct = ref([]);
 const productSelect = ref([]);
 const promotionIdSelect = ref("");
-const userGroupPromotionSelect = ref([]);
 const discountPercentage = ref(0);
 const productPromotionSelect = ref([]);
 
@@ -277,6 +276,11 @@ const fetchListCategory = async () => {
     }
 }
 
+const filteredProducts = computed(() => {
+    const selectedIds = productPromotionSelect.value.map(item => item.product.product_id);
+    return listProduct.value.filter(product => !selectedIds.includes(product.product_id));
+});
+
 const handleDeleteProductPromotion = async (id) => {
     try {
         const response = await productPromotionService.delete(id);
@@ -294,9 +298,8 @@ const fetchProductByCategoryName = async (name) => {
         const response = await productService.getProductByCategoryName({
             category_name: name
         });
-        console.log(response);
-
-        lisProduct.value = response.data;
+        console.log('Fetch product by category: ', response);
+        listProduct.value = response.data;
     } catch (error) {
         console.log(error.response)
     }
@@ -407,14 +410,15 @@ const handleSubmitUpdatePromotion = async () => {
 
 const handleAddProductPromotion = async () => {
     try {
-        productSelect.value.forEach(async (product) => {
+        productSelect.value.forEach(async (id) => {
             const response = await productPromotionService.create({
                 promotion_id: promotionIdSelect.value,
-                product_id: product.product_id,
-                discount_price: (discountPercentage.value * product.product_price) / 100
+                product_id: id,
+                discount_price: (discountPercentage.value * getProductPriceById(id)) / 100
             });
+            // console.log('Get product id: ', getProductPriceById(id));
             console.log(response);
-            console.log(product.product_id);
+            // console.log(id);
             handleFetchPromotion();
         })
         productSelect.value = [];
@@ -424,6 +428,11 @@ const handleAddProductPromotion = async () => {
     } catch (error) {
         console.log(error.response);
     }
+}
+
+
+const getProductPriceById = (id) => {
+    return listProduct.value.filter((data) => data.product_id == id)[0].product_price;
 }
 
 const handleProductPromotion = (promotion) => {
@@ -486,7 +495,7 @@ watch(categorySelect, (newData) => {
     if (newData !== "") {
         fetchProductByCategoryName(newData);
     } else {
-        lisProduct.value = [];
+        listProduct.value = [];
     }
 })
 

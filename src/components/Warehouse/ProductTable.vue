@@ -30,8 +30,9 @@
             </tbody>
         </table>
         <div class="text-end">
-            <el-pagination v-model:current-page="currentPage" @current-change="handleCurrentChange" small background
-                layout="prev, pager, next" :total="Math.ceil(productsLength / pageSize) * 10" class="mt-4" />
+            <el-pagination v-model:current-page="currentPage" @current-change="handleCurrentChange" size="small"
+                background layout="prev, pager, next" :total="Math.ceil(productBatchStore.length / pageSize) * 10"
+                class="mt-4" />
         </div>
         <div v-show="datasearch.length === 0">
             <p class="text-center">Không có sản phẩm nào</p>
@@ -40,47 +41,40 @@
 </template>
 
 <script setup>
-import { computed, ref, onMounted } from 'vue';
-import productService from "@/services/product.service";
+import { computed, ref, onMounted, watch } from 'vue';
+import { useProductBatchStore } from '../../stores/productBatch';
 
+
+const productBatchStore = useProductBatchStore();
 const currentPage = ref(1);
 const pageSize = 8;
 const search = ref("");
-const productsLength = ref(0);
-const listProduct = ref([]);
-
 const handleSearch = () => {
     console.log(search.value);
-};
-
-const fetchListProductBatch = async () => {
-    try {
-        const response = await productService.fetchListProductBatch();
-        listProduct.value = response.data;
-        productsLength.value = response.data.length;
-        console.log(response);
-    } catch (error) {
-        console.log(error);
-    }
 };
 
 const datasearch = computed(() => {
     const dataSearch = String(search.value).trim();
     const startIndex = (currentPage.value - 1) * pageSize;
     if (!dataSearch) {
-        return listProduct.value.slice(startIndex, startIndex + pageSize);
+        return productBatchStore.listProductBatch.slice(startIndex, startIndex + pageSize);
     }
-    return listProduct.value.filter((data) => {
+    return productBatchStore.listProductBatch.filter((data) => {
         return String(data.product_name)
             .toLowerCase()
             .includes(dataSearch.toLowerCase());
     });
 });
 
-onMounted(() => {
-    fetchListProductBatch();
-});
+watch(() => productBatchStore.totalBatches, (newValue) => {
+    if (newValue) {
+        productBatchStore.fetchListProductBatch();
+    }
+}, { deep: true });
 
+onMounted(() => {
+    productBatchStore.fetchListProductBatch();
+});
 
 const handleCurrentChange = (val) => {
     currentPage.value = val;

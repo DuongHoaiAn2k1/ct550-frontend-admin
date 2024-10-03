@@ -34,7 +34,7 @@
                   <td>#{{ data.bill_id }}</td>
                   <td>
                     <img :src="'https://dacsancamau.com/storage/' +
-                      JSON.parse(data.order_detail[0].product.product_img)[0]
+                      JSON.parse(data.order_detail[0]?.product?.product_img)[0]
                       " alt="" width="50px" />
                   </td>
                   <td>{{ formatCurrency(data.total_cost) }}</td>
@@ -43,7 +43,7 @@
                     <span v-show="data.status == 'preparing'"
                       class="badge rounded-pill text-info font-size-11 task-status">Đang
                       chuẩn bị</span>
-                    <span v-show="data.status == 'delivering'"
+                    <span v-show="data.status == 'shipping'"
                       class="badge rounded-pill orange font-size-11 task-status">Đang
                       giao</span>
                     <span v-show="data.status == 'delivered'"
@@ -76,7 +76,7 @@
                     <span v-show="data.status == 'preparing'"
                       class="badge rounded-pill text-info font-size-11 task-status">Đang
                       chuẩn bị</span>
-                    <span v-show="data.status == 'delivering'"
+                    <span v-show="data.status == 'shipping'"
                       class="badge rounded-pill orange font-size-11 task-status">Đang
                       giao</span>
                     <span v-show="data.status == 'delivered'"
@@ -105,13 +105,15 @@
                   <td>{{ formatCurrency(data.total_cost) }}</td>
                   <td>{{ convertTime(data.created_at) }}</td>
                   <td>
-                    <span v-show="data.status == '1'" class="badge rounded-pill text-info font-size-11 task-status">Đang
+                    <span v-show="data.status == 'preparing'"
+                      class="badge rounded-pill text-info font-size-11 task-status">Đang
                       chuẩn bị</span>
-                    <span v-show="data.status == '2'" class="badge rounded-pill orange font-size-11 task-status">Đang
+                    <span v-show="data.status == 'shipping'"
+                      class="badge rounded-pill orange font-size-11 task-status">Đang
                       giao</span>
-                    <span v-show="data.status == '3'"
+                    <span v-show="data.status == 'delivered'"
                       class="badge rounded-pill text-success font-size-11 task-status">Đã giao</span>
-                    <span v-show="data.status == '0'" class="badge rounded-pill red font-size-11 task-status">Đã
+                    <span v-show="data.status == 'cancelled'" class="badge rounded-pill red font-size-11 task-status">Đã
                       hủy</span>
                   </td>
                   <td>
@@ -128,11 +130,11 @@
             </table>
             <div class="text-end">
               <el-pagination v-show="todayOrderShow" v-model:current-page="currentPage"
-                @current-change="handleCurrentChange" small background layout="prev, pager, next"
-                :total="Math.ceil(todayListLength / pageSize) * 10" class="mt-4" />
+                @current-change="handleCurrentChange" size="small" background layout="prev, pager, next"
+                :total="Math.ceil(todayOrderStore.length / pageSize) * 10" class="mt-4" />
 
               <el-pagination v-show="allOrderShow" v-model:current-page="currentPage"
-                @current-change="handleCurrentChange" small background layout="prev, pager, next"
+                @current-change="handleCurrentChange" size="small" background layout="prev, pager, next"
                 :total="Math.ceil(orderLength / pageSize) * 10" class="mt-4" />
             </div>
           </div>
@@ -144,15 +146,32 @@
 
 <script setup>
 import orderService from "@/services/order.service";
-import { onMounted, ref, computed } from "vue";
+import { onMounted, ref, computed, watch } from "vue";
 import { ElLoading, ElMessage, ElMessageBox } from "element-plus";
 import { convertTime, formatCurrency } from "@/helpers/UtilHelper";
+import { useTodayOrder } from "../stores/todayOrder";
+import { initializeEcho } from "../pusher/echoConfig";
+
+const echoInstance = initializeEcho();
+echoInstance.channel('admin-channel')
+  .listen('.order.cancelled', async (event) => {
+    if (todayOrderShow.value) {
+      todayOrderStore.fetchTodayOrderList();
+    }
+    if (allOrderShow.value) {
+      fetchListOrder();
+    }
+  });
+
+
 const currentPage = ref(1);
 const listOrder = ref([]);
 const pageSize = 8;
 const orderLength = ref(0);
 const size = (ref < "default") | "large" | ("small" > "default");
 const dateSelect = ref("");
+const todayOrderStore = useTodayOrder();
+
 const fetchListOrder = async () => {
   try {
     const response = await orderService.getAll();
@@ -188,7 +207,7 @@ const handleDeleteOrder = (orderId) => {
       });
       setTimeout(() => {
         fetchListOrder();
-        fetchToDayOrder();
+        todayOrderStore.fetchTodayOrderList();
         loading.close();
 
         ElMessage({
@@ -230,20 +249,10 @@ const todayOrderShow = ref(true);
 const allOrderShow = ref(false);
 const byDateOrderShow = ref(false);
 //
-const todayOrderList = ref([]);
-const todayListLength = ref(0);
-const fetchToDayOrder = async () => {
-  try {
-    const response = await orderService.getToday();
-    todayOrderList.value = response.data;
-    todayListLength.value = response.length;
-  } catch (error) {
-    console.log(error.response);
-  }
-};
+
 const sortTodayOrderList = computed(() => {
   const startIndex = (currentPage.value - 1) * pageSize;
-  return todayOrderList.value.slice(startIndex, startIndex + pageSize);
+  return todayOrderStore.todayOrderList.slice(startIndex, startIndex + pageSize);
 });
 
 const listOrderByDate = ref([]);
@@ -276,10 +285,15 @@ const sortBydayOrderList = computed(() => {
   return listOrderByDate.value.slice(startIndex, startIndex + pageSize);
 });
 
+watch(() => todayOrderStore.length, (newValue) => {
+  if (newValue) {
+    todayOrderStore.fetchTodayOrderList();
+  }
+}, { deep: true });
+
 onMounted(() => {
   fetchListOrder();
-  fetchToDayOrder();
-
+  todayOrderStore.fetchTodayOrderList();
   setTimeout(() => {
     // console.log("HIII: ", paginatedList.value);
   }, 2000);

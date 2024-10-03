@@ -139,7 +139,7 @@ onMounted(async () => {
 
 .toggle-btn {
     width: 95%;
-    padding: 10px;
+    padding: 2px;
     border: none;
     background-color: #000;
     color: #ffffff;

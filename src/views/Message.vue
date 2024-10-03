@@ -10,7 +10,7 @@
                         </div>
                         <ul class="list-unstyled chat-list mt-2 mb-0">
                             <li @click="handleActiveUser(user)" v-for="user in listUser" class="clearfix "
-                                :class="{ 'active': userSelected === user }">
+                                :class="{ 'active': userSelected.id === user.id }">
                                 <img :src="user.avatar ? user.avatar : user.image ? 'https://dacsancamau.com/storage/' + user.image : 'https://bootdey.com/img/Content/avatar/avatar2.png'"
                                     alt="avatar" class="rounded-circle">
                                 <div class="about">
@@ -18,8 +18,13 @@
                                     <div class="status"> <i class="fa fa-circle online"></i> {{ user.roles[0].name }}
                                     </div>
                                 </div>
+                                <div class="float-end">
+                                    <span v-show="user.unread_count_from_admin != 0 && user.id != userSelected.id"
+                                        class="badge rounded-pill badge-notification bg-danger">{{
+                                            user.unread_count_from_admin
+                                        }}</span>
+                                </div>
                             </li>
-
                         </ul>
                     </div>
                     <div class="chat">
@@ -80,7 +85,6 @@
     </div>
 </template>
 
-
 <script setup>
 
 import { onMounted, ref, watch, computed } from "vue";
@@ -103,8 +107,8 @@ echoInstance.channel(`chat.${userId.value}`).listen('.message.sent', async (even
     // const response = await notificationStore.getAll();
     handleFetchMessageById(userSelected.value.id);
     handleFetchAllUser();
+    // console.log('user selected ', userSelected.value);
 });
-
 
 const handleCreateMessage = async () => {
     try {
@@ -129,7 +133,6 @@ const handleFetchAllUser = async () => {
     try {
         const response = await userService.getListUserWithRole();
         listUser.value = response.data;
-        userSelected.value = listUser.value[0];
         console.log("List user ref store: ", listUser.value);
     } catch (error) {
         console.log(error.response);
@@ -139,6 +142,7 @@ const handleFetchAllUser = async () => {
 const handleFetchMessageById = async (id) => {
     try {
         const response = await messageService.get(id);
+        await messageService.adminReadMessage(id);
         messages.value = response.data;
         console.log("List message ref store: ", messages.value);
     } catch (error) {
@@ -162,7 +166,9 @@ watch(userSelected, (newData) => {
 });
 
 onMounted(() => {
-    handleFetchAllUser();
+    handleFetchAllUser().then(() => {
+        userSelected.value = listUser.value[0];
+    })
 });
 
 </script>
@@ -180,7 +186,7 @@ onMounted(() => {
 }
 
 .chat-app .people-list {
-    width: 280px;
+    width: 320px;
     position: absolute;
     left: 0;
     top: 0;
@@ -189,7 +195,7 @@ onMounted(() => {
 }
 
 .chat-app .chat {
-    margin-left: 280px;
+    margin-left: 320px;
     border-left: 1px solid #333
 }
 

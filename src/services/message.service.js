@@ -24,6 +24,10 @@ class MessageService {
     async getAllUser() {
         return (await this.api.get("/user/all")).data;
     }
+
+    async adminReadMessage(id) {
+        return (await this.api.get(`/admin/${id}`)).data;
+    }
 }
 
 export default new MessageService()

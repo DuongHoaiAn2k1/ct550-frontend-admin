@@ -152,7 +152,7 @@
                       TỔNG PHẢI THANH TOÁN:
                       <span class="h2 mb-0 ms-2">{{
                         formatCurrency(orderData.total_cost)
-                        }}</span>
+                      }}</span>
                     </h5>
                   </div>
                 </div>
@@ -214,9 +214,8 @@ const handleUpdate = (status) => {
   setTimeout(() => {
     updateStatus(status, orderId);
     showUpdateSuccess();
-    fetchOrder();
     loading.close();
-  }, 2000);
+  }, 1000);
 };
 const updateStatus = async (status, orderId) => {
   try {
@@ -224,6 +223,7 @@ const updateStatus = async (status, orderId) => {
       { status: status },
       orderId
     );
+    fetchOrder();
   } catch (error) {
     console.log(error.response);
   }

@@ -26,7 +26,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr v-for="(user, index) in listStaff" :key="user.id">
+                                <tr v-for="(user, index) in dataSearch" :key="user.id">
                                     <th scope="row">{{ index + 1 }}</th>
                                     <td>{{ user.name }}</td>
                                     <td>{{ user.email }}</td>
@@ -116,7 +116,7 @@
 
 </template>
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted, watch, computed } from 'vue';
 import { convertTime } from '../helpers/UtilHelper';
 import adminService from '../services/admin.service';
 import { showLoading } from '../helpers/LoadingHelper';
@@ -212,14 +212,12 @@ const handleDeleteStaff = async () => {
 
 
 
-watch(search, (newData) => {
-    if (newData !== "") {
-        listStaff.value = listStaff.value.filter((item) => {
-            return item.name.toLowerCase().includes(newData.toLowerCase());
-        });
-        // console.log("List staff search: ", listStaff.value);
-    }
-})
+const dataSearch = computed(() => {
+    const dataSearch = String(search.value).trim();
+    return listStaff.value.filter((data) => {
+        return String(data.name).toLowerCase().includes(dataSearch.toLowerCase());
+    });
+});
 
 watch(dataCreateStaff.value, (newData) => {
     if (newData) {

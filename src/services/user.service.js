@@ -26,12 +26,17 @@ class UserService {
     return (await this.api.delete(`${id}`)).data;
   }
 
+  //check
   async filterUser(data) {
     return (await this.api.post("/filter/users", data)).data;
   }
 
   async getListUserWithRole() {
     return (await this.api.get("/role/user/get-list")).data;
+  }
+
+  async getListAffiliate() {
+    return (await this.api.get("/affiliate/get")).data;
   }
 }
 

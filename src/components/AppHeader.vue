@@ -28,7 +28,7 @@
             class="fa-solid fa-bell"></i>
           <span class="badge rounded-pill badge-notification bg-danger sub-cart-design">{{
             unReadNumber || 0
-          }}</span></a>
+            }}</span></a>
 
         <div v-if="isNotiticationBox" class="notification-container">
           <Notification />
@@ -58,14 +58,14 @@ import notificationService from '@/services/notification.service';
 import { ElMessage } from "element-plus";
 import { useRouter } from "vue-router";
 import Notification from "./Notifications/Notification.vue";
-
+import { useProductBatchStore } from "../stores/productBatch";
+import { useTodayOrder } from "../stores/todayOrder";
 import { initializeEcho } from "../pusher/echoConfig";
 import { showMessageBTRight } from "@/helpers/NotificationHelper";
 
 const echoInstance = initializeEcho();
-
-
-
+const productBatchStore = useProductBatchStore();
+const todayOrderStore = useTodayOrder();
 const isNotiticationBox = ref(false);
 const router = useRouter();
 const authStore = useAuthStore();
@@ -105,12 +105,15 @@ const handleLogout = async () => {
 echoInstance.channel('admin-channel')
   .listen('.order.created', async (event) => {
     // const response = await notificationStore.getAll();
-    console.log('Chanel');
-    fetchNotifications()
+    // console.log('Chanel');
     setTimeout(() => {
-      showMessageBTRight('Đơn hàng mới', 'Vừa tiếp nhận đơn hàng mới');
-
-    }, 500);
+      fetchNotifications();
+      productBatchStore.fetchListProductBatch();
+      todayOrderStore.fetchTodayOrderList();
+      setTimeout(() => {
+        showMessageBTRight('Đơn hàng mới', 'Vừa tiếp nhận đơn hàng mới');
+      }, 500);
+    }, 2000);
 
   });
 
@@ -158,5 +161,9 @@ const showLogoutSuccess = () => {
   width: 300px;
   z-index: 1000;
   /* Ensure it appears above other elements */
+}
+
+:deep(.el-notification) {
+  border: 1px solid black !important;
 }
 </style>

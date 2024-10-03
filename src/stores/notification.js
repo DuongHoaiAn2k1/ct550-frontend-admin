@@ -10,7 +10,7 @@ export const useNotificationStore = defineStore("notification", {
     actions: {
         async getAll() {
            const response = await notificationService.getAll();
-        //    console.log(response);
+           console.log('Notification: ', response);
            this.notifications = response.data;
            this.length = response.data.length;
            this.count_unread = response.count_unread;

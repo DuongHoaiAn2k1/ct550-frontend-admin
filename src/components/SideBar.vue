@@ -74,7 +74,7 @@
             TIN NHẮN
           </router-link>
 
-          <router-link v-show="currentRole === 'admin'" class=" nav-link" :to="{ name: 'refund' }">
+          <router-link v-show="currentRole === 'admin'" class=" nav-link" :to="{ name: 'affiliate' }">
             <div class="sb-nav-link-icon">
               <i class="fa-solid fa-user-ninja"></i>
             </div>

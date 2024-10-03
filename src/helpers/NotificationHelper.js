@@ -46,6 +46,7 @@ const showMessageBTRight = (title, message) => {
     title: title,
     message: message,
     position: 'bottom-right',
+    type: 'info',
   })
 }
 export { showSuccess, showWarning, showError, showInfo, showSuccessMessage, showMessageBTRight };

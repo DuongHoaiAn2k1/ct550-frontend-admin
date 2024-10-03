@@ -33,7 +33,7 @@
                         <label for="exampleFormControlInput1" class="form-label fw-bold">Giá nhập (Tổng lô hàng)</label>
                         <input type="text" class="form-control" id="exampleFormControlInput1"
                             v-model="batchData.batch_cost" placeholder="Giá nhập">
-                        <div v-if="errors.batch_cost" class="text-danger">{{ errors.batch_cost }}</div>
+                        <div v-if="errors.batch_cost" class="text-danger">{{ formatCurrency(errors.batch_cost) }}</div>
                     </div>
                 </div>
                 <div class="col">
@@ -94,7 +94,7 @@
                     <th scope="row" class="text-center">{{ index + 1 }}</th>
                     <td class="text-center">{{ batch.batch_id }}</td>
                     <td class="text-center">{{ batch?.product?.product_name }}</td>
-                    <td class="text-center">{{ batch.batch_cost }}</td>
+                    <td class="text-center">{{ formatCurrency(batch.batch_cost) }}</td>
                     <td class="text-center">{{ batch.quantity }}</td>
 
                     <td class="text-center">
@@ -123,6 +123,7 @@ import { useCategoryStore } from '../../stores/category';
 import batchService from '../../services/batch.service';
 import productService from '../../services/product.service';
 import { showLoading } from '../../helpers/LoadingHelper';
+import { formatCurrency } from '../../helpers/UtilHelper'
 
 const dateSelect = ref([]);
 const centerDialogVisible = ref(false)
