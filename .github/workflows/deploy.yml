@@ -15,7 +15,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Cài đặt Node.js
+      # Cài đặt Node.js phiên bản 18.5.0
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -24,7 +24,7 @@ jobs:
       # Cài đặt dependencies và build ứng dụng Vue.js
       - name: Install and Build Vue.js
         run: |
-          cd frontend # Thay đổi thành thư mục chứa dự án Vue.js của bạn
+          cd frontend/admin # Thay đổi thành thư mục chứa dự án Vue.js của bạn
           npm install
           npm run build
 
@@ -33,7 +33,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: vue-build
-          path: frontend/dist # Đường dẫn đến thư mục build của Vue.js
+          path: frontend/admin/dist # Đường dẫn đến thư mục build của Vue.js
 
   deploy:
     runs-on: ubuntu-latest
@@ -66,7 +66,9 @@ jobs:
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
             set -e
-            cd frontend/admin
+            
+            # Triển khai frontend
+            cd /path/to/your/frontend/directory # Thay đổi thành thư mục đích trên server
             rm -rf * # Xóa nội dung cũ nếu cần
             cp -r ~/vue_build/* . # Sao chép nội dung mới từ artifact
 
