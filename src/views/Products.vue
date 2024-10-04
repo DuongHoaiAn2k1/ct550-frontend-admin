@@ -38,7 +38,7 @@
                   <th scope="row" class="text-center">{{ index + 1 }}</th>
                   <td class="text-center">{{ product.product_name }}</td>
                   <td class="text-center">
-                    <img :src="'https://dacsancamau.com/storage/' +
+                    <img :src="apiUrl +
                       JSON.parse(product.product_img)[0]
                       " alt="Hình ảnh" width="50px" />
                   </td>
@@ -62,8 +62,7 @@
                   </td>
                   <td class="text-center">
                     <el-popconfirm confirm-button-text="Yes" cancel-button-text="No" width="200"
-                      confirm-button-type="danger" title="Bạn có muốn xóa?" @confirm="handleDelete(product.product_id)"
-                      >
+                      confirm-button-type="danger" title="Bạn có muốn xóa?" @confirm="handleDelete(product.product_id)">
                       <template #reference>
                         <el-button v-show="index !== editingIndex" type="danger">Delete</el-button>
                       </template>
@@ -91,8 +90,9 @@ import { useProductStore } from "../stores/product";
 import { deleteProduct } from "../utils/productUtils";
 import { formatCurrency, convertTime } from "@/helpers/UtilHelper";
 import { showLoading } from "../helpers/LoadingHelper";
-const productStore = useProductStore();
 
+const apiUrl = import.meta.env.VITE_APP_API_URL;
+const productStore = useProductStore();
 const currentPage = ref(1);
 const pageSize = 8;
 const productsLength = ref(0);

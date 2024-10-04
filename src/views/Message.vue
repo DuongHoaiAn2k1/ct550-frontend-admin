@@ -11,7 +11,7 @@
                         <ul class="list-unstyled chat-list mt-2 mb-0">
                             <li @click="handleActiveUser(user)" v-for="user in listUser" class="clearfix "
                                 :class="{ 'active': userSelected.id === user.id }">
-                                <img :src="user.avatar ? user.avatar : user.image ? 'https://dacsancamau.com/storage/' + user.image : 'https://bootdey.com/img/Content/avatar/avatar2.png'"
+                                <img :src="user.avatar ? user.avatar : user.image ? apiUrl + user.image : 'https://bootdey.com/img/Content/avatar/avatar2.png'"
                                     alt="avatar" class="rounded-circle">
                                 <div class="about">
                                     <div style="font-size: 13px;" class="name">{{ user.name }}</div>
@@ -32,7 +32,7 @@
                             <div class="row">
                                 <div class="col-lg-6">
                                     <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#view_info">
-                                        <img :src="userSelected.avatar ? userSelected.avatar : userSelected.image ? 'https://dacsancamau.com/storage/' + userSelected.image : 'https://bootdey.com/img/Content/avatar/avatar2.png'"
+                                        <img :src="userSelected.avatar ? userSelected.avatar : userSelected.image ? apiUrl + userSelected.image : 'https://bootdey.com/img/Content/avatar/avatar2.png'"
                                             class="rounded-circle">
                                     </a>
                                     <div class="chat-about">
@@ -93,6 +93,7 @@ import { convertTime } from "../helpers/UtilHelper"
 import { initializeEcho } from "../pusher/echoConfig";
 import { useAuthStore } from "@/stores/auth";
 import userService from "../services/user.service";
+const apiUrl = import.meta.env.VITE_APP_API_URL;
 
 const loading = ref(false)
 const echoInstance = initializeEcho();

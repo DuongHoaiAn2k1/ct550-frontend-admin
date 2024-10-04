@@ -33,7 +33,7 @@
                   <th scope="row">{{ index + 1 }}</th>
                   <td>#{{ data.bill_id }}</td>
                   <td>
-                    <img :src="'https://dacsancamau.com/storage/' +
+                    <img :src="apiUrl +
                       JSON.parse(data.order_detail[0]?.product?.product_img)[0]
                       " alt="" width="50px" />
                   </td>
@@ -66,7 +66,7 @@
                   <th scope="row">{{ index + 1 }}</th>
                   <td>#{{ data.bill_id }}</td>
                   <td>
-                    <img :src="'https://dacsancamau.com/storage/' +
+                    <img :src="apiUrl +
                       JSON.parse(data.order_detail[0].product.product_img)[0]
                       " alt="" width="50px" />
                   </td>
@@ -98,7 +98,7 @@
                   <th scope="row">{{ index + 1 }}</th>
                   <td>#{{ data.bill_id }}</td>
                   <td>
-                    <img :src="'https://dacsancamau.com/storage/' +
+                    <img :src="apiUrl +
                       JSON.parse(data.order_detail[0].product.product_img)[0]
                       " alt="" width="50px" />
                   </td>
@@ -151,6 +151,7 @@ import { ElLoading, ElMessage, ElMessageBox } from "element-plus";
 import { convertTime, formatCurrency } from "@/helpers/UtilHelper";
 import { useTodayOrder } from "../stores/todayOrder";
 import { initializeEcho } from "../pusher/echoConfig";
+const apiUrl = import.meta.env.VITE_APP_API_URL;
 
 const echoInstance = initializeEcho();
 echoInstance.channel('admin-channel')

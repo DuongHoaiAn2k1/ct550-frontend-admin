@@ -76,8 +76,7 @@
                     <input type="text" v-model="category.category_name" :readonly="index !== editingIndex"
                       :class="{ 'design-input': index !== editingIndex }" />
                   </td>
-                  <td class="text-center"><img :src="'https://dacsancamau.com/storage/' + category.image"
-                      style="width: 50px; height: 50px" /></td>
+                  <td class="text-center"><img :src="apiUrl + category.image" style="width: 50px; height: 50px" /></td>
                   <td>{{ convertTime(category.created_at) }}</td>
                   <td>{{ convertTime(category.updated_at) }}</td>
                   <td>
@@ -122,8 +121,8 @@ import { convertTime } from "../helpers/UtilHelper";
 import { createCategory, updateCategory, deleteCategory } from "../utils/categoryUtils";
 import { showLoading } from "../helpers/LoadingHelper";
 import * as Yup from "yup";
+const apiUrl = import.meta.env.VITE_APP_API_URL;
 const categoryStore = useCategoryStore();
-
 const currentPage = ref(1);
 const pageSize = 8;
 

@@ -60,7 +60,7 @@
                       <div class="card-body" v-for="data in orderData.order_detail" :key="data.order_detail_id">
                         <div class="row">
                           <div class="col-md-2">
-                            <img :src="'https://dacsancamau.com/storage/' +
+                            <img :src="apiUrl +
                               JSON.parse(data.product.product_img)[0]
                               " class="img-fluid" alt="Phone" width="50px" />
                           </div>
@@ -152,7 +152,7 @@
                       TỔNG PHẢI THANH TOÁN:
                       <span class="h2 mb-0 ms-2">{{
                         formatCurrency(orderData.total_cost)
-                      }}</span>
+                        }}</span>
                     </h5>
                   </div>
                 </div>
@@ -182,6 +182,8 @@ import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import { ElLoading, ElNotification, ElMessage } from "element-plus";
 import Invoice from "../components/Invoice/Invoice.vue";
+
+const apiUrl = import.meta.env.VITE_APP_API_URL;
 const route = useRoute();
 const orderId = route.params.id;
 const address = ref([]);

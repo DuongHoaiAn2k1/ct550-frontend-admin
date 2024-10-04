@@ -20,8 +20,7 @@
                     <th scope="row" class="text-center">{{ index + 1 }}</th>
                     <td class="text-center">{{ product.product_name }}</td>
                     <td class="text-center">
-                        <img :src="'https://dacsancamau.com/storage/' + JSON.parse(product.product_img)[0]"
-                            alt="Hình ảnh" width="50px" />
+                        <img :src="apiUrl + JSON.parse(product.product_img)[0]" alt="Hình ảnh" width="50px" />
                     </td>
                     <td class="text-center">
                         {{ product.product_quantity }}
@@ -43,7 +42,7 @@
 <script setup>
 import { computed, ref, onMounted, watch } from 'vue';
 import { useProductBatchStore } from '../../stores/productBatch';
-
+const apiUrl = import.meta.env.VITE_APP_API_URL;
 
 const productBatchStore = useProductBatchStore();
 const currentPage = ref(1);
