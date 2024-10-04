@@ -34,18 +34,10 @@
 <script setup>
 import { defineProps, ref, computed, onMounted } from 'vue';
 import pdfMake from 'pdfmake/build/pdfmake';
-import pdfFonts from 'pdfmake/build/vfs_fonts';
+import { vfs } from 'pdfmake/build/vfs_fonts'; // Sử dụng destructuring để import vfs
 import { formatCurrency } from '../../helpers/UtilHelper';
 
-pdfMake.vfs = pdfFonts.pdfMake.vfs; // Register the fonts with pdfMake
-pdfMake.fonts = {
-    Roboto: {
-        normal: 'Roboto-Regular.ttf',
-        bold: 'Roboto-Medium.ttf',
-        italics: 'Roboto-Italic.ttf',
-        bolditalics: 'Roboto-MediumItalic.ttf'
-    }
-};
+pdfMake.vfs = vfs; // Thiết lập vfs cho pdfMake
 
 // Nhận props từ component cha
 const props = defineProps({
@@ -108,23 +100,17 @@ const generateInvoice = () => {
         styles: {
             header: {
                 fontSize: 18,
-                bold: true,
-                font: 'Roboto' // Use Roboto for header
+                bold: true
             },
             subheader: {
                 fontSize: 14,
-                bold: true,
-                font: 'Roboto' // Use Roboto for subheader
+                bold: true
             }
-        },
-        defaultStyle: {
-            font: 'Roboto' // Use Roboto as default font
         }
     };
 
     pdfMake.createPdf(docDefinition).download(`hoa-don-${props.billId}.pdf`);
 };
-
 
 // Xử lý khi component được mount
 onMounted(() => {
@@ -133,6 +119,7 @@ onMounted(() => {
         address.value = JSON.parse(props.items.order_address);
     }
 });
+
 </script>
 
 <style scoped>
