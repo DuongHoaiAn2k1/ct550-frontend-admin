@@ -19,7 +19,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18.5.0'
+          node-version: '22.2.0'
 
       # Cài đặt dependencies và build ứng dụng Vue.js
       - name: Install and Build Vue.js
