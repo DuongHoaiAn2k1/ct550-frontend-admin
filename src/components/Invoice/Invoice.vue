@@ -34,10 +34,10 @@
 <script setup>
 import { defineProps, ref, computed, onMounted } from 'vue';
 import pdfMake from 'pdfmake/build/pdfmake';
-import pdfFonts from 'pdfmake/build/vfs_fonts';
+import * as pdfFonts from 'pdfmake/build/vfs_fonts'; // Thay đổi import ở đây
 import { formatCurrency } from '../../helpers/UtilHelper';
 
-pdfMake.vfs = pdfFonts.pdfMake.vfs; // Register the fonts with pdfMake
+pdfMake.vfs = pdfFonts.pdfMake.vfs; // Đăng ký fonts với pdfMake
 pdfMake.fonts = {
     Roboto: {
         normal: 'Roboto-Regular.ttf',
@@ -125,7 +125,6 @@ const generateInvoice = () => {
     pdfMake.createPdf(docDefinition).download(`hoa-don-${props.billId}.pdf`);
 };
 
-
 // Xử lý khi component được mount
 onMounted(() => {
     // Parse địa chỉ từ items
@@ -134,6 +133,7 @@ onMounted(() => {
     }
 });
 </script>
+
 
 <style scoped>
 /* Thêm style cho hóa đơn nếu cần */
