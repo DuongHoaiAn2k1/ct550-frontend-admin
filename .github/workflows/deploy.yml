@@ -63,6 +63,10 @@ jobs:
       # Deploy tới server qua SSH
       - name: Deploy to server
         run: |
+          # Sao chép artifact lên server từ xa
+          scp -o StrictHostKeyChecking=no -r vue_build/* ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:/remote/path/to/vue_build/
+
+          # Triển khai trên server từ xa
           ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
             set -e
             
@@ -74,7 +78,7 @@ jobs:
             rm -rf * # Xóa nội dung cũ nếu cần
 
             # Sao chép nội dung mới từ artifact
-            cp -r /path/to/vue_build/* . # Sử dụng đường dẫn chính xác tới thư mục artifact trên server
+            cp -r /remote/path/to/vue_build/* . # Sử dụng đường dẫn chính xác tới thư mục artifact trên server
 
             echo "Frontend deployment completed successfully!"
           EOF
