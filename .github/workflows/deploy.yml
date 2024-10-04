@@ -24,7 +24,6 @@ jobs:
       # Cài đặt dependencies và build ứng dụng Vue.js
       - name: Install and Build Vue.js
         run: |
-          cd frontend/admin # Thay đổi thành thư mục chứa dự án Vue.js của bạn
           npm install
           npm run build
 
@@ -33,7 +32,7 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: vue-build
-          path: frontend/admin/dist # Đường dẫn đến thư mục build của Vue.js
+          path: dist # Đường dẫn đến thư mục build của Vue.js
 
   deploy:
     runs-on: ubuntu-latest
@@ -68,7 +67,7 @@ jobs:
             set -e
             
             # Triển khai frontend
-            cd /path/to/your/frontend/directory # Thay đổi thành thư mục đích trên server
+            cd frontend/admin
             rm -rf * # Xóa nội dung cũ nếu cần
             cp -r ~/vue_build/* . # Sao chép nội dung mới từ artifact
 
