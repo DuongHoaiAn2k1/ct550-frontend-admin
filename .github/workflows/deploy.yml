@@ -69,11 +69,10 @@ jobs:
           scp -r $GITHUB_WORKSPACE/vue_build/* ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:~/vue_build_tmp
           ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
             set -e
-            mkdir -p frontend/dự_án_mới # Tạo thư mục cho dự án mới
-            cd frontend/dự_án_mới
-            rm -rf *
-            cp -r ~/vue_build_tmp/* .
+            cd frontend/admin # Di chuyển đến thư mục dự án hiện tại
+            rm -rf * # Xóa nội dung cũ (nếu cần)
+            cp -r ~/vue_build_tmp/* . # Sao chép nội dung build mới
             rm -rf ~/vue_build_tmp
             echo "Frontend deployment completed successfully!"
           EOF
-    
+
