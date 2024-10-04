@@ -13,15 +13,11 @@ export default defineConfig({
     },
   },
   server: {
-    host: 'admin.dacsancamau.com',
+    host: 'localhost',
     port: 3002, // Specify your desired port number
-    https: {
-      key: fs.readFileSync(path.resolve(__dirname, 'ssl/vite-key.pem')),
-      cert: fs.readFileSync(path.resolve(__dirname, 'ssl/vite-cert.pem')),
-    },
     proxy: {
       "/api": {
-        target: "https://dacsancamau.com/",
+        target: "https://luanvantotnghiep.io.vn:8443",
         changeOrigin: true,
         secure: false,
       },
