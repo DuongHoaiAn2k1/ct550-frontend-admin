@@ -59,17 +59,24 @@ jobs:
         with:
           name: vue-build
           path: vue_build # Thư mục tạm để lưu trữ artifact
-
+          
       # Deploy tới server qua SSH
       - name: Deploy to server
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
             set -e
             
+            # Kiểm tra và tạo thư mục nếu chưa tồn tại
+            mkdir -p frontend/admin
+            
             # Triển khai frontend
             cd frontend/admin
             rm -rf * # Xóa nội dung cũ nếu cần
-            cp -r ~/vue_build/* . # Sao chép nội dung mới từ artifact
+
+            # Sao chép nội dung mới từ artifact
+            cp -r /path/to/vue_build/* . # Sử dụng đường dẫn chính xác tới thư mục artifact trên server
 
             echo "Frontend deployment completed successfully!"
           EOF
+
+    
