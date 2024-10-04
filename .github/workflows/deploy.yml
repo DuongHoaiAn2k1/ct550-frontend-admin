@@ -63,13 +63,14 @@ jobs:
       # Deploy tới server qua SSH
       - name: Deploy to server
         run: |
+          scp -r $GITHUB_WORKSPACE/vue_build/* ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:~/vue_build_tmp
           ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
             set -e
-            
             mkdir -p frontend/admin
             cd frontend/admin
-            rm -rf * 
-            cp -r $GITHUB_WORKSPACE/vue_build/* . 
+            rm -rf *
+            cp -r ~/vue_build_tmp/* .
+            rm -rf ~/vue_build_tmp
             echo "Frontend deployment completed successfully!"
           EOF
-    
+
