@@ -29,7 +29,9 @@ jobs:
       - name: Deploy to server
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
-            cd frontend/admin
+            cd frontend
+            sudo chown -R $USER:$USER admin 
+            cd admin
             git pull origin main
             npm install
             npm run dev &
