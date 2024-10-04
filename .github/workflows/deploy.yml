@@ -63,14 +63,17 @@ jobs:
       # Deploy tới server qua SSH
       - name: Deploy to server
         run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
+            mkdir -p ~/vue_build_tmp
+          EOF
           scp -r $GITHUB_WORKSPACE/vue_build/* ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}:~/vue_build_tmp
           ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
             set -e
-            mkdir -p frontend/admin
-            cd frontend/admin
+            mkdir -p frontend/dự_án_mới # Tạo thư mục cho dự án mới
+            cd frontend/dự_án_mới
             rm -rf *
             cp -r ~/vue_build_tmp/* .
             rm -rf ~/vue_build_tmp
             echo "Frontend deployment completed successfully!"
           EOF
-
+    
