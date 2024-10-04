@@ -66,12 +66,15 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
             set -e
             
-            mkdir -p /var/www/your-project/admin
-            cd /var/www/your-project/admin
-            rm -rf * 
+            # Kiểm tra và tạo thư mục nếu chưa tồn tại
+            mkdir -p frontend/admin
             
-            # Sao chép từ thư mục tạm vue_build (đã được download)
-            cp -r ../vue_build/* . 
-            
+            # Triển khai frontend
+            cd frontend/admin
+            rm -rf * # Xóa nội dung cũ nếu cần
+
+            # Sao chép nội dung mới từ artifact (sử dụng đường dẫn chính xác)
+            cp -r $GITHUB_WORKSPACE/vue_build/* . 
+
             echo "Frontend deployment completed successfully!"
           EOF
