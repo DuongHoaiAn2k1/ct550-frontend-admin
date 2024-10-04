@@ -90,7 +90,7 @@
 <script setup>
 import { ref, onMounted, computed, watch, handleError } from 'vue'
 import affiliateService from '../services/affiliate.service';
-import { initializeEcho } from '../../../client/src/pusher/echoConfig';
+import { initializeEcho } from '../pusher/echoConfig';
 import { convertTime } from '../helpers/UtilHelper'
 import CommissionTable from '../components/Tables/CommissionTable.vue';
 import AffiliateTable from '../components/Tables/AffiliateTable.vue';
