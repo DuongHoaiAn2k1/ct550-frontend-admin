@@ -57,14 +57,14 @@
                       <router-link style="text-decoration: none; color: #fff" :to="{
                         name: 'update-product',
                         params: { id: product.product_id },
-                      }">Edit</router-link>
+                      }">Chỉnh sửa</router-link>
                     </button>
                   </td>
                   <td class="text-center">
                     <el-popconfirm confirm-button-text="Yes" cancel-button-text="No" width="200"
                       confirm-button-type="danger" title="Bạn có muốn xóa?" @confirm="handleDelete(product.product_id)">
                       <template #reference>
-                        <el-button v-show="index !== editingIndex" type="danger">Delete</el-button>
+                        <el-button v-show="index !== editingIndex" type="danger">Xóa</el-button>
                       </template>
                     </el-popconfirm>
                   </td>
@@ -73,7 +73,8 @@
             </table>
             <div class="text-end">
               <el-pagination v-model:current-page="currentPage" @current-change="handleCurrentChange" small background
-                layout="prev, pager, next" :total="Math.ceil(productsLength / pageSize) * 10" class="mt-4" />
+                layout="prev, pager, next"
+                :total="Math.ceil((search ? datasearch.length : productStore.length) / pageSize) * 10" class="mt-4" />
             </div>
             <div v-show="datasearch.length === 0">
               <p class="text-center">Không có sản phẩm nào</p>
@@ -101,6 +102,7 @@ const search = ref("");
 
 onMounted(async () => {
   await productStore.fetchListProduct();
+  console.log(productStore.length);
 });
 
 const handleSearch = () => {

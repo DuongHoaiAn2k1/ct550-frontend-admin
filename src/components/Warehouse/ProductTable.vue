@@ -30,7 +30,8 @@
         </table>
         <div class="text-end">
             <el-pagination v-model:current-page="currentPage" @current-change="handleCurrentChange" size="small"
-                background layout="prev, pager, next" :total="Math.ceil(productBatchStore.length / pageSize) * 10"
+                background layout="prev, pager, next"
+                :total="Math.ceil((search ? datasearch.length : productBatchStore.length) / pageSize) * 10"
                 class="mt-4" />
         </div>
         <div v-show="datasearch.length === 0">
@@ -70,6 +71,10 @@ watch(() => productBatchStore.totalBatches, (newValue) => {
         productBatchStore.fetchListProductBatch();
     }
 }, { deep: true });
+
+const fetchListProductBatch = () => {
+    productBatchStore.fetchListProductBatch();
+};
 
 onMounted(() => {
     productBatchStore.fetchListProductBatch();

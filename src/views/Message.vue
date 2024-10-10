@@ -6,10 +6,10 @@
                     <div id="plist" class="people-list">
                         <div class="input-group mb-3">
                             <span class="input-group-text"><i class="fa fa-search"></i></span>
-                            <input type="text" class="form-control" placeholder="Search...">
+                            <input v-model="search" type="text" class="form-control" placeholder="Search...">
                         </div>
                         <ul class="list-unstyled chat-list mt-2 mb-0">
-                            <li @click="handleActiveUser(user)" v-for="user in listUser" class="clearfix "
+                            <li @click="handleActiveUser(user)" v-for="user in filterUser" class="clearfix "
                                 :class="{ 'active': userSelected.id === user.id }">
                                 <img :src="user.avatar ? user.avatar : user.image ? apiUrl + user.image : 'https://bootdey.com/img/Content/avatar/avatar2.png'"
                                     alt="avatar" class="rounded-circle">
@@ -94,7 +94,7 @@ import { initializeEcho } from "../pusher/echoConfig";
 import { useAuthStore } from "@/stores/auth";
 import userService from "../services/user.service";
 const apiUrl = import.meta.env.VITE_APP_API_URL;
-
+const search = ref("");
 const loading = ref(false)
 const echoInstance = initializeEcho();
 const listUser = ref([]);
@@ -164,6 +164,13 @@ watch(userSelected, (newData) => {
             loading.value = false
         }, 500);
     }
+});
+
+const filterUser = computed(() => {
+    const searchKey = String(search.value).trim();
+    return listUser.value.filter((data) => {
+        return String(data.name).toLowerCase().includes(searchKey.toLowerCase());
+    })
 });
 
 onMounted(() => {

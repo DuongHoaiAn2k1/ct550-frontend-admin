@@ -58,7 +58,8 @@
             </table>
             <div class="text-end">
               <el-pagination v-model:current-page="currentPage" @current-change="handleCurrentChange" small background
-                layout="prev, pager, next" :total="Math.ceil(listCustomerLength / pageSize) * 10" class="mt-4" />
+                layout="prev, pager, next"
+                :total="Math.ceil((search ? datasearch.length : userStore.length) / pageSize) * 10" class="mt-4" />
             </div>
           </div>
         </div>
@@ -158,8 +159,7 @@ const customerRoles = computed(() => {
 const sortOrderPoint = ref("ascending");
 // Define panigation var
 const currentPage = ref(1);
-const pageSize = 8;
-const listCustomerLength = ref(0);
+const pageSize = 10;
 
 // End
 

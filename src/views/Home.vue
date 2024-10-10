@@ -81,7 +81,7 @@
                   <td>{{ convertTime(category.updated_at) }}</td>
                   <td>
                     <button type="button" class="btn btn-sm btn-secondary design-button" @click="handleEdit(index)">
-                      Edit
+                      Điều chỉnh
                     </button>
                   </td>
                   <td>
@@ -89,12 +89,12 @@
                       confirm-button-type="danger" title="Bạn có muốn xóa?"
                       @confirm="handleDelete(category.category_id)">
                       <template #reference>
-                        <el-button v-show="index !== editingIndex" type="danger">Delete</el-button>
+                        <el-button v-show="index !== editingIndex" type="danger">Xóa</el-button>
                       </template>
                     </el-popconfirm>
                     <button v-show="index === editingIndex" type="button" class="btn btn-sm btn-success"
                       @click="handleUpdate(category)">
-                      Update
+                      Cập nhật
                     </button>
                   </td>
                 </tr>
@@ -102,8 +102,9 @@
             </table>
             <div class="text-end">
               <el-pagination v-model:current-page="currentPage" @current-change="handleCurrentChange" background
-                layout="prev, pager, next" :total="Math.ceil(categoryStore.length / pageSize) * 10" class="mt-4"
-                size="default" />
+                layout="prev, pager, next"
+                :total="Math.ceil((search ? datasearch.length : categoryStore.length) / pageSize) * 10" class="mt-4"
+                size="small" />
             </div>
             <div v-show="datasearch.length == 0">
               <p class="text-center">Không có danh mục nào</p>

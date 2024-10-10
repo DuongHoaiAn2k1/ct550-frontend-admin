@@ -4,6 +4,7 @@ import productService from "@/services/product.service";
 export const useProductStore = defineStore("product", {
     state: () => ({
         listProduct: [],
+        length: 0
     }),
 
     getters: {
@@ -14,6 +15,7 @@ export const useProductStore = defineStore("product", {
             try {
                 const response = await productService.getAll();
                 this.listProduct = response.listProduct;
+                this.length = response.length
                 console.log("List product ref store: ", this.listProduct);
                 console.log("Fetch List product from store: ", response);
             } catch (error) {

@@ -104,7 +104,7 @@
                     <td class="text-center">{{ formatDate(batch.entry_date) }}</td>
                     <td class="text-center">{{ formatDate(batch.expiry_date) }}</td>
                     <td class="text-center">{{ batch.user.name }}</td>
-                    <td class="text-center"><el-button type="danger" round @click="hidden(batch.batch_id)">Ẩn lô
+                    <td class="text-center"><el-button type="success" round @click="unHidden(batch.batch_id)">Hiện lô
                             hàng</el-button></td>
 
                 </tr>
@@ -208,7 +208,7 @@ const handleSearch = () => {
 
 const fetchListBatch = async () => {
     try {
-        const response = await batchService.getAll();
+        const response = await batchService.getHiddenList();
         listBatch.value = response.data;
         batchLength.value = response.data.length;
         console.log(response);
@@ -271,10 +271,10 @@ const handleCreate = async () => {
     }
 };
 
-const hidden = async (id) => {
+const unHidden = async (id) => {
     try {
         const response = await batchService.updateStatus(id, {
-            status: 'Hidden'
+            status: 'Active'
         });
         console.log('Hidden: ', response);
         fetchListBatch();
