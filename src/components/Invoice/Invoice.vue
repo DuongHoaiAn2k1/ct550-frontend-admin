@@ -32,7 +32,7 @@
 </template>
 
 <script setup>
-import { defineProps, ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import pdfMake from 'pdfmake/build/pdfmake';
 import * as pdfFonts from 'pdfmake/build/vfs_fonts'; // Thay đổi import ở đây
 import { formatCurrency } from '../../helpers/UtilHelper';

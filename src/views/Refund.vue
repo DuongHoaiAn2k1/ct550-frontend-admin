@@ -321,6 +321,10 @@ const refundListAll = computed(() => {
 </script>
 
 <style scoped>
+:deep(.el-pagination .el-pager .is-active) {
+    background-color: black !important;
+}
+
 .yellow {
     color: yellow;
 }

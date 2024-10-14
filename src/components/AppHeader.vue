@@ -28,9 +28,9 @@
             class="fa-solid fa-bell"></i>
           <span class="badge rounded-pill badge-notification bg-danger sub-cart-design">{{
             unReadNumber || 0
-            }}</span></a>
+          }}</span></a>
 
-        <div v-if="isNotiticationBox" class="notification-container">
+        <div v-if="isNotiticationBox && authStore.isAdminLoggedIn" class="notification-container">
           <Notification />
         </div>
       </li>
@@ -38,10 +38,10 @@
         <a class="nav-link dropdown-toggle" id="navbarUserDropdown" href="#" role="button" data-bs-toggle="dropdown"
           aria-expanded="false"><i class="fas fa-user fa-fw"></i></a>
         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarUserDropdown">
-          <li>
+          <li v-if="authStore.isAdminLoggedIn">
             <router-link :to="{ name: 'profile' }" class="dropdown-item" href="#!">Tài khoản</router-link>
           </li>
-          <li>
+          <li v-if="authStore.isAdminLoggedIn">
             <a class="dropdown-item" @click="handleLogout" href="#!">Đăng Xuất</a>
           </li>
         </ul>

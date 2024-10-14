@@ -238,14 +238,16 @@ const handleCurrentChange = (val) => {
 </script>
 
 <style scoped>
+:deep(.el-pagination .el-pager .is-active) {
+  background-color: black !important;
+}
+
 .contain-search {
   display: flex;
 }
 
 .form-design {
   width: 220px;
-  /* margin-left: 993px; */
-  margin-left: 1160px;
 }
 
 .design-input {

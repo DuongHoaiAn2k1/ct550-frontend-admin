@@ -1,9 +1,9 @@
 <template>
     <div class="notification-list-wrapper">
         <div class="notification-list" :class="{ 'scrollable': isAllShown }">
+            <div class="text-center" v-show="notificationStore.length == 0">Không có thông báo</div>
             <div class="notification" :class="notification.is_admin_read ? 'notifcation-default' : 'notification-read'"
                 v-for="notification in notificationsToShow" :key="notification.id">
-                <!-- <img src="" class="avatar" alt="User avatar"> -->
                 <span class="avatar"><i class="fa-solid fa-circle-exclamation"></i></span>
                 <div class="notification-content">
                     <p style="font-size: 14px;">

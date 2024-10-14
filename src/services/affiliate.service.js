@@ -17,8 +17,8 @@ class AffiliateService {
         return (await this.api.patch(`request/approved/${affiliate_request_id}`)).data;
     }
 
-    async rejected(affiliate_request_id){
-        return (await this.api.patch(`request/rejected/${affiliate_request_id}`)).data;
+    async rejected(affiliate_request_id, data){
+        return (await this.api.patch(`request/rejected/${affiliate_request_id}`, data)).data;
     }
 
     async getListCommission(){

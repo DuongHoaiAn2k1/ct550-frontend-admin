@@ -38,6 +38,9 @@ class UserService {
   async getListAffiliate() {
     return (await this.api.get("/affiliate/get")).data;
   }
+  async resetPassword(data) {
+    return (await this.api.post("/reset/password/user", data)).data;
+  }
 }
 
 export default new UserService();

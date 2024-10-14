@@ -20,6 +20,7 @@
                                             <th class="col text-center">STT</th>
                                             <th class="col text-center">Tên khách hàng</th>
                                             <th class="col text-center">Email</th>
+                                            <th class="col text-center">Link mạng xã hội</th>
                                             <th class="col text-center">SĐT</th>
                                             <th class="col text-center">Ngày tham gia</th>
                                             <th class="col text-center">Trạng thái</th>
@@ -36,7 +37,13 @@
                                             <td class="text-center">
                                                 {{ item.user.email }}
                                             </td>
+
                                             <td class="text-center">
+                                                <a :href="item.social_media_link" target="_blank">{{
+                                                    item.social_media_link }}</a>
+                                            </td>
+
+                                            <td class=" text-center">
                                                 {{ item.user.phone }}
                                             </td>
                                             <td class="text-center">
@@ -46,13 +53,15 @@
                                                 {{ status[item.status] }}
                                             </td>
                                             <td class="text-center">
-                                                <el-button type="success" :disabled="item.status == 'approved'"
+                                                <el-button type="success"
+                                                    :disabled="item.status == 'approved' || item.status == 'rejected'"
                                                     @click="handleApproved(item.affiliate_request_id)">Xét
                                                     duyệt</el-button>
                                             </td>
                                             <td class="text-center">
-                                                <el-button type="danger" :disabled="item.status == 'approved'"
-                                                    @click="handleReject(item.affiliate_request_id)">Từ
+                                                <el-button type="danger"
+                                                    :disabled="item.status == 'approved' || item.status == 'rejected'"
+                                                    @click="showFormReject(item.affiliate_request_id)">Từ
                                                     chối</el-button>
                                             </td>
                                         </tr>
@@ -85,7 +94,17 @@
             </div>
         </main>
     </div>
-
+    <el-dialog v-model="showRejectForm" title="Lý do từ chối" width="600" center>
+        <textarea name="" id="" cols="70" rows="10" placeholder="Nhập lý do từ chối" v-model="reason"></textarea>
+        <template #footer>
+            <div class="dialog-footer">
+                <el-button @click="showRejectForm = false">Hủy</el-button>
+                <el-button type="danger" @click="handleReject">
+                    Từ chối
+                </el-button>
+            </div>
+        </template>
+    </el-dialog>
 </template>
 <script setup>
 import { ref, onMounted, computed, watch, handleError } from 'vue'
@@ -95,11 +114,13 @@ import { convertTime } from '../helpers/UtilHelper'
 import CommissionTable from '../components/Tables/CommissionTable.vue';
 import AffiliateTable from '../components/Tables/AffiliateTable.vue';
 import WithdrawalTable from '../components/Tables/WithdrawalTable.vue';
+import { showSuccess } from '../helpers/NotificationHelper';
+import { showLoading } from '../helpers/LoadingHelper';
 
 const search = ref('');
 const listRequest = ref([]);
 const echoInstance = initializeEcho();
-
+const showRejectForm = ref(false);
 const currentPage = ref(1);
 const pageSize = 8;
 
@@ -113,6 +134,10 @@ const status = {
     approved: 'Đã duyệt',
     rejected: 'Đã từ chối',
 }
+
+const affiliateRequestIdSelected = ref('');
+const reason = ref('');
+
 const fetchListRequest = async () => {
     try {
         const response = await affiliateService.getAll();
@@ -133,9 +158,25 @@ const handleApproved = async (id) => {
     }
 }
 
-const handleReject = async (id) => {
+const showFormReject = (id) => {
+    affiliateRequestIdSelected.value = id;
+    showRejectForm.value = true;
+}
+
+const handleReject = async () => {
     try {
-        console.log(id);
+        const loading = showLoading();
+        const response = await affiliateService.rejected(affiliateRequestIdSelected.value, {
+            reason: reason.value
+        });
+        setTimeout(() => {
+            fetchListRequest();
+            showRejectForm.value = false;
+            showSuccess("Đã từ chối yêu cầu");
+            console.log("Reject: ", response);
+            loading.close();
+        }, 2000);
+
     } catch (error) {
         console.log(error.response);
     }
