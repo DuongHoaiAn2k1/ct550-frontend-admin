@@ -74,7 +74,7 @@
                                         :total="Math.ceil(listRequest.length / pageSize) * 10" class="mt-4" />
                                 </div>
                                 <div v-show="datasearch.length === 0">
-                                    <p class="text-center">Không có sản phẩm nào</p>
+                                    <p class="text-center">Không có yêu cầu nào</p>
                                 </div>
                             </div>
                         </el-tab-pane>
@@ -128,6 +128,7 @@ const pageSize = 8;
 echoInstance.channel(`affiliate-create-request`).listen('.affiliate-create-request', async (event) => {
     fetchListRequest();
 });
+
 
 const status = {
     pending: 'Đang chờ',

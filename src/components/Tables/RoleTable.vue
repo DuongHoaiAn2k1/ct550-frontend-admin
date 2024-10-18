@@ -38,7 +38,6 @@
                     <th class="col text-center">{{ title }}</th>
                     <th class="col text-center">{{ description }}</th>
                     <th class="col text-center">Ngày tạo</th>
-                    <th class="col text-center">Ngày cập nhật</th>
                     <th class="col text-center"></th>
                     <th class="col text-center"></th>
                 </tr>
@@ -51,14 +50,11 @@
                     </td>
 
                     <td class="text-center">
-                        <input type="text" v-model="data.description" :readonly="index !== editingIndex"
-                            :class="{ 'design-input': index !== editingIndex }" />
+                        <input style="width: 300px;" type="text" v-model="data.description"
+                            :readonly="index !== editingIndex" :class="{ 'design-input': index !== editingIndex }" />
                     </td>
                     <td class="text-center">
                         {{ convertTime(data.created_at) }}
-                    </td>
-                    <td class="text-center">
-                        {{ convertTime(data.updated_at) }}
                     </td>
                     <td class="text-center">
                         <button type="button" class="btn btn-sm btn-secondary design-button" @click="handleEdit(index)">
@@ -173,7 +169,7 @@ const datasearch = computed(() => {
     }
 
     return props.listData?.filter((data) => {
-        return String(data.description)
+        return (String(data.description) + String(data.name))
             .toLowerCase()
             .includes(dataSearch.toLowerCase());
     });

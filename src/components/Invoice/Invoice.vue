@@ -1,6 +1,7 @@
 <template>
     <div id="invoice">
-        <h2>Hóa đơn</h2>
+        <h4 class="text-center">SHOP</h4>
+        <h3 class="text-center">Hóa đơn</h3>
         <p class="text-muted p-0"><span class="fw-bold">Số:</span> #{{ billId }}</p>
         <p class="text-muted p-0"><span class="fw-bold">Tên khách hàng:</span> {{ customerName }}</p>
         <p class="text-muted p-0"><span class="fw-bold">Ngày đặt:</span> {{ date }}</p>
@@ -26,7 +27,8 @@
             </tbody>
         </table>
         <h6 class="mt-1 fw-bold">Phí vận chuyển : {{ formatCurrency(items.shipping_fee) }} đ</h6>
-        <h5 class="fw-bold">Tổng thanh toán : {{ formatCurrency(items.total_cost) }} đ</h5>
+        <h5 class="fw-bold">Tổng thanh toán : {{ items.paid ? formatCurrency(0) : formatCurrency(items.total_cost) }}
+        </h5>
         <button class="mt-1" @click="generateInvoice">Xuất hóa đơn PDF</button>
     </div>
 </template>
@@ -81,7 +83,8 @@ const formattedAddress = computed(() => {
 const generateInvoice = () => {
     const docDefinition = {
         content: [
-            { text: 'Hóa đơn', style: 'header' },
+            { text: 'SHOP', style: 'header', alignment: 'center' },
+            { text: 'Hóa đơn', style: 'header', alignment: 'center', margin: [0, 0, 0, 20] },
             { text: `Số: #${props.billId}` },
             { text: `Tên khách hàng: ${props.customerName}` },
             { text: `Ngày đặt: ${props.date}` },
@@ -103,7 +106,7 @@ const generateInvoice = () => {
                 }
             },
             { text: `Phí vận chuyển: ${formatCurrency(props.items.shipping_fee)} `, style: 'subheader' },
-            { text: `Tổng thanh toán: ${formatCurrency(props.items.total_cost)} `, style: 'subheader' }
+            { text: `Tổng thanh toán: ${props.items.paid ? formatCurrency(0) : formatCurrency(props.items.total_cost)} `, style: 'subheader' }
         ],
         styles: {
             header: {

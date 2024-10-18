@@ -46,7 +46,7 @@
                 layout="prev, pager, next" :total="Math.ceil(listAffiliate.length / pageSize) * 10" class="mt-4" />
         </div>
         <div v-show="dataSearchAffiliate.length === 0">
-            <p class="text-center">Không có sản phẩm nào</p>
+            <p class="text-center">Không có nhà tiếp thị nào</p>
         </div>
     </div>
 </template>

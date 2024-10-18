@@ -40,6 +40,10 @@
                   <td>{{ formatCurrency(data.total_cost) }}</td>
                   <td>{{ convertTime(data.created_at) }}</td>
                   <td>
+                    <span v-show="data.status == 'payment_failed'"
+                      class="badge rounded-pill text-danger font-size-11 task-status">Thanh toán thất bại</span>
+                    <span v-show="data.status == 'pending_payment'"
+                      class="badge rounded-pill text-warning font-size-11 task-status">Chờ thanh toán</span>
                     <span v-show="data.status == 'preparing'"
                       class="badge rounded-pill text-info font-size-11 task-status">Đang
                       chuẩn bị</span>
@@ -73,6 +77,10 @@
                   <td>{{ formatCurrency(data.total_cost) }}</td>
                   <td>{{ convertTime(data.created_at) }}</td>
                   <td>
+                    <span v-show="data.status == 'payment_failed'"
+                      class="badge rounded-pill text-danger font-size-11 task-status">Thanh toán thất bại</span>
+                    <span v-show="data.status == 'pending_payment'"
+                      class="badge rounded-pill text-warning font-size-11 task-status">Chờ thanh toán</span>
                     <span v-show="data.status == 'preparing'"
                       class="badge rounded-pill text-info font-size-11 task-status">Đang
                       chuẩn bị</span>
@@ -105,6 +113,10 @@
                   <td>{{ formatCurrency(data.total_cost) }}</td>
                   <td>{{ convertTime(data.created_at) }}</td>
                   <td>
+                    <span v-show="data.status == 'payment_failed'"
+                      class="badge rounded-pill text-danger font-size-11 task-status">Thanh toán thất bại</span>
+                    <span v-show="data.status == 'pending_payment'"
+                      class="badge rounded-pill text-warning font-size-11 task-status">Chờ thanh toán</span>
                     <span v-show="data.status == 'preparing'"
                       class="badge rounded-pill text-info font-size-11 task-status">Đang
                       chuẩn bị</span>
@@ -156,6 +168,16 @@ const apiUrl = import.meta.env.VITE_APP_API_URL;
 const echoInstance = initializeEcho();
 echoInstance.channel('admin-channel')
   .listen('.order.cancelled', async (event) => {
+    if (todayOrderShow.value) {
+      todayOrderStore.fetchTodayOrderList();
+    }
+    if (allOrderShow.value) {
+      fetchListOrder();
+    }
+  });
+
+echoInstance.channel('payment-set-status')
+  .listen('.preparing', async (event) => {
     if (todayOrderShow.value) {
       todayOrderStore.fetchTodayOrderList();
     }

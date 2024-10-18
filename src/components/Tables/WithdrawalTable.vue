@@ -56,7 +56,7 @@
                 layout="prev, pager, next" :total="Math.ceil(withDrawalData.length / pageSize) * 10" class="mt-4" />
         </div>
         <div v-show="withDrawalData.length === 0">
-            <p class="text-center">Không có sản phẩm nào</p>
+            <p class="text-center">Không có yêu cầu nào</p>
         </div>
     </div>
 
@@ -68,12 +68,17 @@ import { onMounted, ref, computed } from 'vue';
 import affiliateService from '../../services/affiliate.service';
 import { convertTime, formatCurrency } from '../../helpers/UtilHelper';
 import { showSuccess } from '../../helpers/NotificationHelper';
-
+import { initializeEcho } from "../../pusher/echoConfig";
 
 const currentPage = ref(1);
 const pageSize = 8;
 const withDrawalData = ref([]);
+const echoInstance = initializeEcho();
 
+echoInstance.channel('affiliate-withdrawal')
+    .listen('.request-withdrawal', async (event) => {
+        fetchWithdrawal();
+    });
 const fetchWithdrawal = async () => {
     try {
         const response = await affiliateService.getWithdraw();

@@ -38,6 +38,21 @@
                         Mã đơn hàng: #{{ orderData.bill_id }}
                       </p>
                     </div>
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                      <p></p>
+                      <p v-show="orderData.paid === 1 && orderData.status != 'cancelled'" class="small text-muted mb-0">
+                        <el-tag style="font-size: 20px;" type="success">Đã thanh toán</el-tag>
+                      </p>
+                      <p v-show="orderData.status == 'pending_payment'" class="small text-muted mb-0">
+                        <el-tag style="font-size: 20px;" type="warning">Chờ thanh toán</el-tag>
+                      </p>
+                      <p v-show="orderData.status == 'payment_failed'" class="small text-muted mb-0">
+                        <el-tag style="font-size: 20px;" type="danger">Thanh toán thất bại</el-tag>
+                      </p>
+                      <p v-show="orderData.status === 'cancelled'" class="small text-muted mb-0">
+                        <el-tag style="font-size: 20px;" type="danger">Đã hủy</el-tag>
+                      </p>
+                    </div>
                     <div class="card shadow-0 border mb-4">
                       <div class="row">
                         <div class="col-md-2"></div>
@@ -150,7 +165,7 @@
                       ">
                     <h5 class="d-flex align-items-center justify-content-end text-white text-uppercase mb-0">
                       TỔNG PHẢI THANH TOÁN:
-                      <span class="h2 mb-0 ms-2">{{
+                      <span class="h2 mb-0 ms-2">{{ orderData.paid ? formatCurrency(0) :
                         formatCurrency(orderData.total_cost)
                         }}</span>
                     </h5>
@@ -167,7 +182,7 @@
           :items="orderData" />
         <template #footer>
           <div class="dialog-footer">
-            <el-button @click="showInvoice = false">Cancel</el-button>
+            <el-button @click="showInvoice = false">Hủy</el-button>
 
           </div>
         </template>

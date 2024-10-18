@@ -213,15 +213,14 @@
                 </el-dialog>
 
 
-                <!-- <div class="text-end">
-                    <el-pagination v-show="todayRefundShow" v-model:current-page="currentPage"
-                        @current-change="handleCurrentChange" small background layout="prev, pager, next"
-                        :total="Math.ceil(todayRefundLength / pageSize) * 10" class="mt-4" />
-
-                    <el-pagination v-show="allRefundShow" v-model:current-page="currentPage"
-                        @current-change="handleCurrentChange" small background layout="prev, pager, next"
-                        :total="Math.ceil(refundLength / pageSize) * 10" class="mt-4" />
-                </div> -->
+                <div class="text-end" v-show="endDataPromotion.length > 0">
+                    <el-pagination v-model:current-page="currentPage" @current-change="handleCurrentChange" small
+                        background layout="prev, pager, next"
+                        :total="Math.ceil(endDataPromotion.length / pageSize) * 10" class="mt-4" />
+                </div>
+                <div v-show="endDataPromotion.length === 0">
+                    <p class="text-center">Không có khuyến mãi nào</p>
+                </div>
             </div>
         </div>
     </main>
@@ -556,11 +555,19 @@ const handleInputUpdate = () => {
     }
 };
 
+const handleCurrentChange = (val) => {
+    currentPage.value = val;
+    console.log(`current page: ${val}`);
+};
 
 
 </script>
 
 <style scoped>
+:deep(.el-pagination .el-pager .is-active) {
+    background-color: black !important;
+}
+
 .yellow {
     color: yellow;
 }

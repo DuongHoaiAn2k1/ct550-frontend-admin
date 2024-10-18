@@ -211,7 +211,7 @@ const fetchListBatch = async () => {
         const response = await batchService.getAll();
         listBatch.value = response.data;
         batchLength.value = response.data.length;
-        console.log(response);
+        console.log('List batch :', response);
     } catch (error) {
         console.log(error);
     }
@@ -236,7 +236,7 @@ const datasearch = computed(() => {
         return listBatch.value.slice(startIndex, startIndex + pageSize);
     }
     return listBatch.value.filter((data) => {
-        return String(data.product_name)
+        return String(data.product.product_name)
             .toLowerCase()
             .includes(dataSearch.toLowerCase());
     });

@@ -69,7 +69,7 @@
                     </td>
 
                     <td class="text-center">
-                        {{ data.commission_rate }}
+                        {{ formatPercent(data.commission_rate) }}
                     </td>
                     <td class="text-center">
                         {{ convertTime(data.created_at) }}
@@ -281,6 +281,10 @@ const handleCurrentChange = (val) => {
     currentPage.value = val;
     console.log(`current page: ${val}`);
 };
+
+const formatPercent = (value) => {
+    return value + '%';
+}
 
 
 const showFormCreateCommission = ref(false);
