@@ -171,15 +171,15 @@ const idOfUser = ref("");
 const listOrderByUser = ref([]);
 const pointUsed = ref(0);
 const orderBuyCount = computed(() => {
-  return listOrderByUser.value.filter((order) => order.status == 3).length;
+  return listOrderByUser.value.filter((order) => order.status == 'delivered').length;
 });
 const orderCancelCount = computed(() => {
-  return listOrderByUser.value.filter((order) => order.status == 0).length;
+  return listOrderByUser.value.filter((order) => order.status == 'cancelled').length;
 });
 
 const totalCostBuying = computed(() => {
   return listOrderByUser.value.reduce((total, order) => {
-    if (order.status == 3) {
+    if (order.status == 'delivered') {
       total += order.total_cost;
     }
     return total;

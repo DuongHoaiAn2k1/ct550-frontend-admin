@@ -61,8 +61,7 @@
                                         :class="{ 'text-end': message.sender_id != userSelected.id }">
                                         <span class="message-data-time">{{ convertTime(message.created_at) }}</span>
                                         <img v-if="message.sender_id != userSelected.id"
-                                            src="https://bootdey.com/img/Content/avatar/avatar7.png" alt="avatar"
-                                            class="rounded-circle">
+                                            src="../../public/admin/admin-img.png" alt="avatar" class="rounded-circle">
                                     </div>
                                     <div
                                         :class="{ 'message': true, 'other-message': message.sender_id != userSelected.id, 'my-message': message.sender_id === userSelected.id }">

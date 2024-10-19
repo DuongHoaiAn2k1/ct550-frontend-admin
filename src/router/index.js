@@ -184,6 +184,15 @@ const routes = [
     path: "/tokenProcess",
     name: "token",
     component: () => import("@/helps/Token/TokenProcess.vue"),
+    beforeEnter: (to, from, next) => {
+      const authStore = useAuthStore();
+      if (authStore.isAdminLoggedIn) {
+        next();
+      } else {
+        next({ name: "login" });
+        showWarning();
+      }
+    },
   },
 
   { path: "/assign-role",

@@ -43,8 +43,9 @@
 <script setup>
 import { computed, ref, onMounted, watch } from 'vue';
 import { useProductBatchStore } from '../../stores/productBatch';
+import { initializeEcho } from '@/pusher/echoConfig';
 const apiUrl = import.meta.env.VITE_APP_API_URL;
-
+const echoInstance = initializeEcho();
 const productBatchStore = useProductBatchStore();
 const currentPage = ref(1);
 const pageSize = 8;
@@ -53,6 +54,9 @@ const handleSearch = () => {
     console.log(search.value);
 };
 
+echoInstance.channel('admin-channel').listen('.order.cancelled', async (event) => {
+    productBatchStore.fetchListProductBatch();
+});
 const datasearch = computed(() => {
     const dataSearch = String(search.value).trim();
     const startIndex = (currentPage.value - 1) * pageSize;
@@ -66,11 +70,11 @@ const datasearch = computed(() => {
     });
 });
 
-watch(() => productBatchStore.totalBatches, (newValue) => {
-    if (newValue) {
-        productBatchStore.fetchListProductBatch();
-    }
-}, { deep: true });
+// watch(() => productBatchStore.totalBatches, (newValue) => {
+//     if (newValue) {
+//         productBatchStore.fetchListProductBatch();
+//     }
+// }, { deep: true });
 
 const fetchListProductBatch = () => {
     productBatchStore.fetchListProductBatch();

@@ -58,19 +58,19 @@
                     </td>
                     <td class="text-center">
                         <button type="button" class="btn btn-sm btn-secondary design-button" @click="handleEdit(index)">
-                            Edit
+                            Sửa
                         </button>
                     </td>
                     <td class="text-center">
                         <el-popconfirm confirm-button-text="Yes" cancel-button-text="No" width="200"
                             confirm-button-type="danger" title="Bạn có muốn xóa?" @confirm="handleDelete(data.id)">
                             <template #reference>
-                                <el-button v-show="index !== editingIndex" type="danger">Delete</el-button>
+                                <el-button v-show="index !== editingIndex" type="danger">Xóa</el-button>
                             </template>
                         </el-popconfirm>
                         <button v-show="index === editingIndex" type="button" class="btn btn-sm btn-success"
                             @click="handleUpdate(data)">
-                            Update
+                            Cập nhật
                         </button>
                     </td>
                 </tr>

@@ -31,7 +31,7 @@
                   <th scope="row" class="text-center">{{ index + 1 }}</th>
                   <td class="text-center">{{ product.product_name }}</td>
                   <td class="text-center">
-                    <img :src="'http://127.0.0.1:8000/storage/' +
+                    <img :src="apiUrl +
                       JSON.parse(product.product_img)[0]
                       " alt="Hình ảnh" width="50px" />
                   </td>
@@ -107,7 +107,10 @@ import * as Yup from "yup";
 import { ElLoading, ElNotification } from "element-plus";
 import { InfoFilled } from "@element-plus/icons-vue";
 import reviewService from "@/services/review.service";
+import { initializeEcho } from "@/pusher/echoConfig";
 
+const apiUrl = import.meta.env.VITE_APP_API_URL;
+const echoInstance = initializeEcho();
 const currentPage = ref(1);
 const pageSize = 8;
 const productsLength = ref(0);
@@ -121,6 +124,10 @@ const openDialogWithReviews = (product) => {
   currentReviews.value = product.reviews; // Cập nhật reviews dựa trên sản phẩm được chọn
   outerVisible.value = true; // Mở dialog
 };
+
+echoInstance.channel("admin-channel").listen(".review-created", (e) => {
+  fetchListProduct();
+});
 
 const confirmEvent = () => {
   console.log("confirm!");

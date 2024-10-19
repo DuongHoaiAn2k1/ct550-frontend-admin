@@ -18,7 +18,7 @@ class ReviewService {
   }
 
   async delete(id) {
-    return (await this.api.delete(`${id}`)).data;
+    return (await this.api.delete(`/${id}`)).data;
   }
   async userHasReviewedProduct(id) {
     return (await this.api.post(`/check/${id}`)).data;
