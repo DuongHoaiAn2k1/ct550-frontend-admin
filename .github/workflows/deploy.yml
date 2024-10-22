@@ -36,8 +36,8 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
             set -e
             
-            mkdir -p frontend/admin
-            cd frontend/admin
+            mkdir -p /var/www/frontend/admin
+            cd /var/www/frontend/admin
       
             if [ ! -d .git ]; then
               git init
