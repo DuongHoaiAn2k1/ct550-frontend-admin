@@ -11,6 +11,10 @@
             <el-date-picker class="ms-3" v-model="dateSelect" type="daterange" range-separator="Đến"
               start-placeholder="Ngày bắt đầu" end-placeholder="Ngày kết thúc" :size="size" />
             <el-button @click="sortDate">Lọc</el-button>
+            <span v-show="todayOrderShow" class="ms-2" style="font-size: 14px">Kết quả: {{ todayOrderStore.length
+              }}</span>
+            <span v-show="allOrderShow" class="ms-2" style="font-size: 14px">Kết quả: {{ orderLength }}</span>
+            <span v-show="byDateOrderShow" class="ms-2" style="font-size: 14px">Kết quả: {{ orderByDateLength }}</span>
           </div>
           <div class="card-body">
             <div class="form-group pull-right contain-search"></div>
@@ -21,9 +25,17 @@
                   <th>STT</th>
                   <th class="col">Mã đơn hàng</th>
                   <th class="col">Hình ảnh</th>
-                  <th class="col">Tổng tiền</th>
+                  <th class="col">Tổng tiền
+                    <button class="border-none" @click="sortByMoney">
+                      <i class="fa-solid fa-sort"></i>
+                    </button>
+                  </th>
                   <th class="col">Thời gian đặt hàng</th>
-                  <th class="col">Trạng thái</th>
+                  <th class="col">Trạng thái
+                    <button class="border-none" @click="sortByStatus">
+                      <i class="fa-solid fa-sort"></i>
+                    </button>
+                  </th>
                   <th class="col">Chi tiết</th>
                   <th></th>
                 </tr>
@@ -148,6 +160,10 @@
               <el-pagination v-show="allOrderShow" v-model:current-page="currentPage"
                 @current-change="handleCurrentChange" size="small" background layout="prev, pager, next"
                 :total="Math.ceil(orderLength / pageSize) * 10" class="mt-4" />
+
+              <el-pagination v-show="byDateOrderShow" v-model:current-page="currentPage"
+                @current-change="handleCurrentChange" size="small" background layout="prev, pager, next"
+                :total="Math.ceil(orderByDateLength / pageSize) * 10" class="mt-4" />
             </div>
           </div>
         </div>
@@ -248,6 +264,10 @@ const handleDeleteOrder = (orderId) => {
 };
 
 //Handle show Order
+const todayOrderShow = ref(true);
+const allOrderShow = ref(false);
+const byDateOrderShow = ref(false);
+
 const sortOrderShow = (type) => {
   switch (type) {
     case "today":
@@ -260,6 +280,11 @@ const sortOrderShow = (type) => {
       allOrderShow.value = true;
       byDateOrderShow.value = false;
       break;
+    // case "byDate":
+    //   todayOrderShow.value = false;
+    //   allOrderShow.value = false;
+    //   byDateOrderShow.value = true;
+    //   break;
     default:
       type = "today";
       break;
@@ -268,9 +293,6 @@ const sortOrderShow = (type) => {
 
 //End
 
-const todayOrderShow = ref(true);
-const allOrderShow = ref(false);
-const byDateOrderShow = ref(false);
 //
 
 const sortTodayOrderList = computed(() => {
@@ -360,6 +382,50 @@ const orderListAll = computed(() => {
   // Sử dụng filteredOrders.value thay vì listOrder.value
   return listOrder.value.slice(startIndex, startIndex + pageSize);
 });
+
+
+//Sort by money
+const sortOrderPoint = ref("ascending");
+
+const toggleSortOrder = () => {
+  sortOrderPoint.value = sortOrderPoint.value === "ascending" ? "descending" : "ascending";
+};
+
+const sortByMoney = () => {
+  const sorting = sortOrderPoint.value === 'ascending' ? 1 : -1;
+
+  if (todayOrderShow.value) {
+    todayOrderStore.todayOrderList.sort((a, b) => (a.total_cost - b.total_cost) * sorting);
+  }
+
+  if (allOrderShow.value) {
+    listOrder.value.sort((a, b) => (a.total_cost - b.total_cost) * sorting);
+  }
+
+  if (byDateOrderShow.value) {
+    listOrderByDate.value.sort((a, b) => (a.total_cost - b.total_cost) * sorting);
+  }
+
+  toggleSortOrder();
+};
+
+const sortByStatus = () => {
+  const sorting = sortOrderPoint.value === 'ascending' ? 1 : -1;
+  if (todayOrderShow.value) {
+    todayOrderStore.todayOrderList.sort((a, b) => a.status.localeCompare(b.status) * sorting);
+  }
+  if (allOrderShow.value) {
+    listOrder.value.sort((a, b) => a.status.localeCompare(b.status) * sorting);
+  }
+
+  if (byDateOrderShow.value) {
+    listOrderByDate.value.sort((a, b) => a.status.localeCompare(b.status) * sorting);
+  }
+
+  toggleSortOrder();
+};
+
+
 </script>
 
 <style scoped>
