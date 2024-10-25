@@ -30,7 +30,7 @@
                                 <tr v-show="todayRefundShow" v-for="(data, index) in sortTodayRefundList"
                                     :key="data.refund_request_id">
                                     <th scope="row">{{ index + 1 }}</th>
-                                    <td>{{ data.bill_id }}</td>
+                                    <td>#{{ data.bill_id }}</td>
                                     <td><span v-show="data.refund_request_status == 'pending'"
                                             class="badge rounded-pill text-info font-size-11 task-status">Chưa xử
                                             lý</span>
