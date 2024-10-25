@@ -6,6 +6,9 @@
         <p class="text-muted p-0"><span class="fw-bold">Tên khách hàng:</span> {{ customerName }}</p>
         <p class="text-muted p-0"><span class="fw-bold">Ngày đặt:</span> {{ date }}</p>
         <p class="text-muted p-0"><span class="fw-bold">Địa chỉ:</span> {{ formattedAddress }}</p>
+        <p class="text-muted p-0"><span class="fw-bold">Trạng thái:</span> {{ items.paid ? 'Đã thanh toán' :
+            (items.status == 'delivered' ? 'Đã thanh toán' : 'Chưa thanh toán') }}
+        </p>
         <table>
             <thead>
                 <tr>
@@ -27,7 +30,7 @@
             </tbody>
         </table>
         <h6 class="mt-1 fw-bold">Phí vận chuyển : {{ formatCurrency(items.shipping_fee) }} đ</h6>
-        <h5 class="fw-bold">Tổng thanh toán : {{ items.paid ? formatCurrency(0) : formatCurrency(items.total_cost) }}
+        <h5 class="fw-bold">Tổng thanh toán : {{ formatCurrency(items.total_cost) }}
         </h5>
         <button class="mt-1" @click="generateInvoice">Xuất hóa đơn PDF</button>
     </div>
@@ -90,6 +93,10 @@ const generateInvoice = () => {
             { text: `Ngày đặt: ${props.date}` },
             { text: `Địa chỉ: ${formattedAddress.value}` },
             {
+                text: `Trạng thái: ${props.items.paid ? 'Đã thanh toán' :
+                    (props.items.status == 'delivered' ? 'Đã thanh toán' : 'Chưa thanh toán')}`
+            },
+            {
                 table: {
                     headerRows: 1,
                     widths: ['auto', '*', 'auto', 'auto', 'auto'],
@@ -106,7 +113,7 @@ const generateInvoice = () => {
                 }
             },
             { text: `Phí vận chuyển: ${formatCurrency(props.items.shipping_fee)} `, style: 'subheader' },
-            { text: `Tổng thanh toán: ${props.items.paid ? formatCurrency(0) : formatCurrency(props.items.total_cost)} `, style: 'subheader' }
+            { text: `Tổng thanh toán: ${formatCurrency(props.items.total_cost)} `, style: 'subheader' }
         ],
         styles: {
             header: {

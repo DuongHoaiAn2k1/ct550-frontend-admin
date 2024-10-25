@@ -17,10 +17,10 @@
                     <p>
                       Trạng thái:
                       <select v-model="orderData.status">
-                        <option value="preparing">Đang chuẩn bị</option>
-                        <option value="shipping">Đang giao</option>
-                        <option value="delivered">Đã giao</option>
-                        <option value="cancelled">Đã hủy</option>
+                        <option value="preparing"><span class="text-primary">Đang chuẩn bị</span></option>
+                        <option value="shipping"><span class="text-warning">Đang giao</span> </option>
+                        <option value="delivered"><span class="text-success">Đã giao</span></option>
+                        <option value="cancelled"><span class="text-danger">Đã hủy</span></option>
                       </select>
                     </p>
                     <p>
@@ -164,8 +164,8 @@
                         border-bottom-right-radius: 10px;
                       ">
                     <h5 class="d-flex align-items-center justify-content-end text-white text-uppercase mb-0">
-                      TỔNG PHẢI THANH TOÁN:
-                      <span class="h2 mb-0 ms-2">{{ orderData.paid ? formatCurrency(0) :
+                      TỔNG TIỀN THANH TOÁN:
+                      <span class="h2 mb-0 ms-2">{{
                         formatCurrency(orderData.total_cost)
                         }}</span>
                     </h5>
@@ -197,6 +197,7 @@ import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import { ElLoading, ElNotification, ElMessage } from "element-plus";
 import Invoice from "../components/Invoice/Invoice.vue";
+import { initializeEcho } from "@/pusher/echoConfig";
 
 const apiUrl = import.meta.env.VITE_APP_API_URL;
 const route = useRoute();
@@ -204,6 +205,14 @@ const orderId = route.params.id;
 const address = ref([]);
 const orderData = ref([]);
 const showInvoice = ref(false);
+const echoInstance = initializeEcho();
+
+echoInstance.channel('admin-channel')
+  .listen('.order.cancelled', async (event) => {
+    setTimeout(() => {
+      fetchOrder();
+    }, 1000);
+  });
 
 const showUpdateSuccess = () => {
   ElMessage({
