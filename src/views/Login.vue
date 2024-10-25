@@ -105,6 +105,7 @@ const handleLogin = async (data) => {
     console.log("hi", response);
   } catch (error) {
     console.log(error.response);
+    throw error;
   }
 };
 
@@ -129,7 +130,12 @@ const handleSubmit = async (event) => {
       });
 
       setTimeout(() => {
-        handleLogin(dataLogin);
+        handleLogin(dataLogin).catch((error) => {
+          // console.log(error.response.data.error);
+          if (error.response.data.error == 'Username or password is incorrect') {
+            showWarning('Tên đăng nhập hoặc mật khẩu không chính xác');
+          }
+        });
 
         //
         loading.close();
