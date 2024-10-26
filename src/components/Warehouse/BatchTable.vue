@@ -112,7 +112,8 @@
         </table>
         <div class="text-end">
             <el-pagination v-model:current-page="currentPage" @current-change="handleCurrentChange" small background
-                layout="prev, pager, next" :total="Math.ceil(batchLength / pageSize) * 10" class="mt-4" />
+                layout="prev, pager, next"
+                :total="Math.ceil((search ? datasearch.length : listBatch.length) / pageSize) * 10" class="mt-4" />
         </div>
         <div v-show="datasearch.length === 0">
             <p class="text-center">Không có lô hàng nào</p>

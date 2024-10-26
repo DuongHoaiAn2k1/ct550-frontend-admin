@@ -97,7 +97,7 @@
                         <el-select v-model="promotionData.roles" placeholder="Chọn danh mục" style="width: 180px"
                             clearable multiple>
                             <el-option label="normal_user" value="normal_user" />
-                            <el-option label="loyal_user" value="loyal_user" />
+                            <el-option label="loyal_customer" value="loyal_customer" />
                         </el-select>
                         <div v-if="discountError" class="text-danger">{{ discountError }}</div>
                     </div>
@@ -144,7 +144,7 @@
                         <el-select v-model="currentDataPromotion.user_group" placeholder="Chọn danh mục"
                             style="width: 180px" clearable multiple>
                             <el-option label="normal_user" value="normal_user" />
-                            <el-option label="loyal_user" value="loyal_user" />
+                            <el-option label="loyal_customer" value="loyal_customer" />
                         </el-select>
                         <div v-if="discountError" class="text-danger">{{ discountError }}</div>
                     </div>
