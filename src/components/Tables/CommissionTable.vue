@@ -30,7 +30,7 @@
                     <div class="mb-3">
                         <label for="commission_rate" class="form-label fw-bold">Mức hoa hồng
                         </label>
-                        <input type="text" class="form-control" id="commission_rate"
+                        <input type="text" class="form-control" id="commission_rate" maxlength="2"
                             placeholder="Mức hoa hồng (VD: 15 = 15%)">
                         <div v-if="errors.commission_rate" class="text-danger">{{ errors.commission_rate }}</div>
                     </div>
