@@ -23,6 +23,10 @@ class ReviewService {
   async userHasReviewedProduct(id) {
     return (await this.api.post(`/check/${id}`)).data;
   }
+
+  async reply(id, data) {
+    return (await this.api.patch(`/reply/${id}`, data)).data;
+  }
 }
 
 export default new ReviewService();

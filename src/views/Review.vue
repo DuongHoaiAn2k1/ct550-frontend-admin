@@ -53,7 +53,8 @@
             </table>
             <div class="text-end">
               <el-pagination v-model:current-page="currentPage" @current-change="handleCurrentChange" small background
-                layout="prev, pager, next" :total="Math.ceil(datasearch.length / pageSize) * 10" class="mt-4" />
+                layout="prev, pager, next"
+                :total="Math.ceil((search ? datasearch.length : productsLength) / pageSize) * 10" class="mt-4" />
             </div>
             <div v-show="datasearch.length === 0">
               <p class="text-center">Không có sản phẩm nào</p>
@@ -81,27 +82,28 @@
               <div class="comment-text">{{ data.comment }}</div>
             </div>
             <div class="col-xs-2 col-md-2">
+              <el-tag v-show="data.reply != null" type="success">Đã trả lời</el-tag>
               <el-popconfirm confirm-button-text="Vâng" cancel-button-text="Hủy" :icon="InfoFilled" icon-color="#626AEF"
-                title="Bạn có chắc?" @confirm="handleDeleteReview(data.review_id)" @cancel="cancelEvent">
+                title="Bạn có chắc?" @confirm="handleDeleteReview(data.review_id)">
                 <template #reference>
                   <el-button>Xóa</el-button>
                 </template>
               </el-popconfirm>
             </div>
           </div>
+          <el-button class="mt-1" @click="toggleReplyBox(data)"> Trả
+            lời</el-button>
+          <div v-show="showBoxReply === data.review_id" class="content-reply-text">
+            <textarea name="" id="" cols="80" rows="8" v-model="currentReply"></textarea>
+            <el-button @click="replyCommentOfUser(data.review_id)" class="mb-4">Gửi</el-button>
+          </div>
         </li>
       </ul>
     </el-scrollbar>
-    <template #footer>
-      <div class="dialog-footer">
-        <el-button @click="outerVisible = false">Cancel</el-button>
-      </div>
-    </template>
   </el-dialog>
 </template>
 <script setup>
 import { computed, onMounted, ref, reactive } from "vue";
-import categoryService from "@/services/category.service";
 import productService from "@/services/product.service";
 import * as Yup from "yup";
 import { ElLoading, ElNotification } from "element-plus";
@@ -116,8 +118,10 @@ const pageSize = 8;
 const productsLength = ref(0);
 const outerVisible = ref(false);
 const innerVisible = ref(false);
+const showBoxReply = ref(0);
 const currentReviews = ref([]); // Dùng để lưu trữ reviews của sản phẩm được chọn
 const currentProduct = ref(null); // Dùng để lưu trữ thông tin sản phẩm hiện tại được chọn
+const currentReply = ref('');
 
 const openDialogWithReviews = (product) => {
   currentProduct.value = product;
@@ -128,17 +132,6 @@ const openDialogWithReviews = (product) => {
 echoInstance.channel("admin-channel").listen(".review-created", (e) => {
   fetchListProduct();
 });
-
-const confirmEvent = () => {
-  console.log("confirm!");
-};
-const cancelEvent = () => {
-  console.log("cancel!");
-};
-
-// const confirmEvent = () => {
-//   console.log("confirm!");
-// };
 
 function roundToOneDecimal(num) {
   return Math.round(num * 10) / 10;
@@ -151,13 +144,6 @@ const showSuccess = (message) => {
   });
 };
 
-const showWarning = (message) => {
-  ElNotification({
-    title: "Warning",
-    message: message,
-    type: "warning",
-  });
-};
 
 const listProduct = ref([]);
 const search = ref("");
@@ -168,8 +154,10 @@ const fetchListProduct = async () => {
     listProduct.value = response.listProduct;
     productsLength.value = response.length;
     console.log(response);
+    return response;
   } catch (error) {
     console.log(error);
+    throw error;
   }
 };
 
@@ -219,6 +207,46 @@ const handleDeleteReview = (review_id) => {
     showSuccess("Xóa sản đánh giá thành công");
     fetchListProduct();
   }, 2000);
+};
+
+const replyCommentOfUser = async (id) => {
+  try {
+    const loading = ElLoading.service({
+      lock: true,
+      text: "Đang xử lý...",
+      background: "rbga(0,0,0, 0.7)",
+    });
+    const response = await reviewService.reply(id, {
+      reply: currentReply.value,
+    });
+    fetchListProduct().then(() => {
+      const updatedProduct = listProduct.value.find(
+        (product) => product.product_id === currentProduct.value.product_id
+      );
+
+      if (updatedProduct) {
+        currentProduct.value = updatedProduct;
+        currentReviews.value = updatedProduct.reviews;
+      }
+      setTimeout(() => {
+        loading.close();
+        showBoxReply.value = 0;
+        showSuccess("Trả lời thành công");
+      }, 1000);
+    })
+
+  } catch (error) {
+    console.log(error.response);
+  }
+}
+
+const toggleReplyBox = (data) => {
+  if (showBoxReply.value === data.review_id) {
+    showBoxReply.value = 0;
+  } else {
+    showBoxReply.value = data.review_id;
+    currentReply.value = data.reply || '';
+  }
 };
 
 function formatCurrency(amount) {

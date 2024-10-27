@@ -26,8 +26,16 @@
                   <th class="col text-center">STT</th>
                   <th class="col text-center">Tên sản phẩm</th>
                   <th class="col text-center">Hình ảnh</th>
-                  <th class="col text-center">Giá</th>
-                  <th class="col text-center">Khối lượng</th>
+                  <th class="col text-center">Giá
+                    <button class="border-none" @click="sortByPrice">
+                      <i class="fa-solid fa-sort"></i>
+                    </button>
+                  </th>
+                  <th class="col text-center">Khối lượng
+                    <button class="border-none" @click="sortByWeight">
+                      <i class="fa-solid fa-sort"></i>
+                    </button>
+                  </th>
                   <th class="col text-center">Ngày tạo</th>
                   <th class="col text-center"></th>
                   <th class="col text-center"></th>
@@ -64,7 +72,7 @@
                     <el-popconfirm confirm-button-text="Yes" cancel-button-text="No" width="200"
                       confirm-button-type="danger" title="Bạn có muốn xóa?" @confirm="handleDelete(product.product_id)">
                       <template #reference>
-                        <el-button v-show="index !== editingIndex" type="danger">Xóa</el-button>
+                        <el-button type="danger">Xóa</el-button>
                       </template>
                     </el-popconfirm>
                   </td>
@@ -97,6 +105,7 @@ const productStore = useProductStore();
 const currentPage = ref(1);
 const pageSize = 8;
 const productsLength = ref(0);
+const sortProductPoint = ref("ascending");
 
 const search = ref("");
 
@@ -135,6 +144,27 @@ const handleDelete = async (category_id) => {
     loading.close();
   }
 
+};
+
+const sortByPrice = () => {
+  const sorting = sortProductPoint.value === 'ascending' ? 1 : -1;
+  if (sortProductPoint.value === 'ascending') {
+    sortProductPoint.value = 'descending';
+  } else {
+    sortProductPoint.value = 'ascending';
+  }
+  productStore.getListProduct.sort((a, b) => (a.product_price - b.product_price) * sorting);
+};
+
+
+const sortByWeight = () => {
+  const sorting = sortProductPoint.value === 'ascending' ? 1 : -1;
+  if (sortProductPoint.value === 'ascending') {
+    sortProductPoint.value = 'descending';
+  } else {
+    sortProductPoint.value = 'ascending';
+  }
+  productStore.getListProduct.sort((a, b) => (a.weight - b.weight) * sorting);
 };
 
 // observing current page
