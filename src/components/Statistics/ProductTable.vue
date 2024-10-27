@@ -23,11 +23,19 @@
                     <tr>
                         <th>STT</th>
                         <th class="col">Tên sản phẩm</th>
-                        <th class="col">Số lượng bán ra</th>
-                        <th class="col">Số lượt xem(All)</th>
+                        <th class="col">Số lượng bán ra
+                            <button @click="sortBySelled" class="border-none">
+                                <i class="fa-solid fa-sort"></i>
+                            </button>
+                        </th>
+                        <th class="col">Số lượt xem(All)
+                            <button @click="sortByViews" class="border-none">
+                                <i class="fa-solid fa-sort"></i>
+                            </button>
+                        </th>
                         <th class="col">
                             Tổng số tiền thu được
-                            <button class="border-none">
+                            <button @click="sortProductIncome" class="border-none">
                                 <i class="fa-solid fa-sort"></i>
                             </button>
                         </th>
@@ -151,6 +159,36 @@ const getDateRange = () => {
         endDate: isoEndDate,
     };
 };
+
+const sortProductPoint = ref('ascending');
+const sortProductIncome = () => {
+    const sorting = sortProductPoint.value === 'ascending' ? 1 : -1;
+    if (sortProductPoint.value === 'ascending') {
+        sortProductPoint.value = 'descending';
+    } else {
+        sortProductPoint.value = 'ascending';
+    }
+    listProduct.value.sort((a, b) => (a.total_cost_detail - b.total_cost_detail) * sorting);
+}
+
+const sortBySelled = () => {
+    const sorting = sortProductPoint.value === 'ascending' ? 1 : -1;
+    if (sortProductPoint.value === 'ascending') {
+        sortProductPoint.value = 'descending';
+    } else {
+        sortProductPoint.value = 'ascending';
+    }
+    listProduct.value.sort((a, b) => (a.total_quantity - b.total_quantity) * sorting);
+}
+const sortByViews = () => {
+    const sorting = sortProductPoint.value === 'ascending' ? 1 : -1;
+    if (sortProductPoint.value === 'ascending') {
+        sortProductPoint.value = 'descending';
+    } else {
+        sortProductPoint.value = 'ascending';
+    }
+    listProduct.value.sort((a, b) => (a.product_views - b.product_views) * sorting);
+}
 </script>
 
 <style scoped>

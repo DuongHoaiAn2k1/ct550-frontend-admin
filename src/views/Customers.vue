@@ -10,9 +10,19 @@
               <input type="text" class="search form-control form-design" placeholder="Nhập từ khóa tìm kiếm"
                 @change="handleSearch" v-model="search" />
               <el-select v-model="currentRole" placeholder="Chọn" style="width: 160px;" size="large">
+                <el-option label="Tất cả" value="" />
                 <el-option v-for="item in customerRoles" :key="item.id" :label="item.name" :value="item.name"
                   :disabled="item.disabled" />
               </el-select>
+              <span class="ms-2 mt-3" style="font-size: 16px">Kết quả: {{ search ? datasearch.length : userStore.length
+                }}</span>
+              <span class="ms-3 mt-3" style="font-size: 16px">Tổng khách hàng: {{
+                userStore.length
+              }}</span>
+
+              <span class="ms-3 mt-3" style="font-size: 16px">Khách hàng thân thiết: {{
+                userStore.countLoyal
+              }}</span>
             </div>
             <span class="counter pull-right"></span>
             <table class="table table-hover table-bordered results">
@@ -200,7 +210,7 @@ const fetchOrderByUser = async (id) => {
 
 
 watch(currentRole, async (newRole) => {
-  if (newRole) {
+  if (newRole != '') {
     await userStore.fetchListUserByRole(newRole);
   } else {
     await userStore.fetchListUser();

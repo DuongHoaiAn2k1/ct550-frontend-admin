@@ -25,10 +25,14 @@
                         <th class="col">Email</th>
                         <th class="col">Điểm tích lũy</th>
                         <th class="col">Điểm đã dùng</th>
-                        <th class="col">Tổng đơn hàng</th>
+                        <th class="col">Tổng đơn hàng
+                            <button @click="sortByOrderCount" class="border-none">
+                                <i class="fa-solid fa-sort"></i>
+                            </button>
+                        </th>
                         <th class="col">
                             Tổng tiền đã mua
-                            <button class="border-none">
+                            <button @click="sortByBuyingMoney" class="border-none">
                                 <i class="fa-solid fa-sort"></i>
                             </button>
                         </th>
@@ -185,6 +189,28 @@ const dataSearch = computed(() => {
         return String(data.name).toLowerCase().includes(searchKey.toLowerCase());
     })
 });
+
+const sortUserPoint = ref("ascending");
+
+const sortByBuyingMoney = () => {
+    const sorting = sortUserPoint.value === 'ascending' ? 1 : -1;
+    if (sortUserPoint.value === 'ascending') {
+        sortUserPoint.value = 'descending';
+    } else {
+        sortUserPoint.value = 'ascending';
+    }
+    listCustomer.value.sort((a, b) => (a.order_sum_total_cost - b.order_sum_total_cost) * sorting);
+};
+
+const sortByOrderCount = () => {
+    const sorting = sortUserPoint.value === 'ascending' ? 1 : -1;
+    if (sortUserPoint.value === 'ascending') {
+        sortUserPoint.value = 'descending';
+    } else {
+        sortUserPoint.value = 'ascending';
+    }
+    listCustomer.value.sort((a, b) => (a.order_count - b.order_count) * sorting);
+};
 
 const handleCurrentChange = (val) => {
     currentPage.value = val;
