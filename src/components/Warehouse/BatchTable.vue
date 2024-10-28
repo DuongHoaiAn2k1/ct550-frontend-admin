@@ -88,6 +88,7 @@
                     <th class="col text-center">Ngày hết hạn</th>
                     <th class="col text-center">Người nhập</th>
                     <th class="col text-center"></th>
+                    <th class="col text-center"></th>
                 </tr>
             </thead>
             <tbody>
@@ -106,6 +107,8 @@
                     <td class="text-center">{{ batch.user.name }}</td>
                     <td class="text-center"><el-button type="danger" round @click="hidden(batch.batch_id)">Ẩn lô
                             hàng</el-button></td>
+                    <td class="text-center"> <el-button @click="showBoxBatchDetail(batch.batch_id)">Xem đơn</el-button>
+                    </td>
 
                 </tr>
             </tbody>
@@ -119,6 +122,69 @@
             <p class="text-center">Không có lô hàng nào</p>
         </div>
     </div>
+
+    <el-dialog v-model="showOrderDetailBatch" title="Yêu cầu hoàn tiền của bạn" width="1000" center>
+        <section class="intro">
+            <div class="gradient-custom-1 h-100">
+                <div class="mask d-flex align-items-center h-100">
+                    <div class="container">
+                        <div class="row justify-content-center">
+                            <div class="col-12">
+                                <div class="table-responsive bg-white">
+                                    <table class="table mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">STT</th>
+                                                <th scope="col">Mã đơn hàng</th>
+                                                <th scope="col">Số lượng</th>
+                                                <th scope="col">Chi tiết</th>
+                                            </tr>
+                                        </thead>
+
+                                        <tbody>
+                                            <tr v-for="(data, index) in paginatedOrderDetailBathes"
+                                                :key="data.order_detail_id">
+                                                <th scope="row" style="color: #666666">
+                                                    {{ index + 1 }}
+                                                </th>
+                                                <td>
+                                                    #{{ data.bill_id }}
+                                                </td>
+
+                                                <td>
+                                                    {{ data.product_count }}
+                                                </td>
+                                                <td>
+                                                    <router-link :to="{
+                                                        name: 'order-detail',
+                                                        params: { id: data.order_id },
+                                                    }">Xem chi tiết</router-link>
+                                                </td>
+
+                                            </tr>
+
+                                        </tbody>
+                                    </table>
+                                    <div class="text-center">
+                                        <span v-show="listOrderWithBatch.length == 0" style="font-size: 20px;"> Không có
+                                            yêu
+                                            cầu nào</span>
+                                    </div>
+                                    <div class="text-end">
+                                        <el-pagination v-model:current-page="currentOrderDetailBatchPage"
+                                            @current-change="handleCurrentOrderDetailBatchChange" small background
+                                            layout="prev, pager, next"
+                                            :total="Math.ceil(listOrderWithBatch.length / pageSize) * 10"
+                                            class="mt-4" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </el-dialog>
 </template>
 
 <script setup>
@@ -140,6 +206,38 @@ const categoryStore = useCategoryStore();
 const categorySelect = ref("");
 const productSelect = ref("");
 const listProductByCategory = ref([]);
+const showOrderDetailBatch = ref(false);
+const listOrderWithBatch = ref([]);
+
+
+
+//////Begin order batches handle////////
+
+const currentOrderDetailBatchPage = ref(1);
+const handleCurrentOrderDetailBatchChange = (val) => {
+    currentOrderDetailBatchPage.value = val
+}
+const showBoxBatchDetail = (id) => {
+    showOrderDetailBatch.value = true
+    fetchOrderDetailBatch(id);
+}
+
+const fetchOrderDetailBatch = async (id) => {
+    try {
+        const response = await batchService.getBatchWithDetail(id);
+        listOrderWithBatch.value = response.orders;
+        console.log('listOrderWithBatch', response);
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+const paginatedOrderDetailBathes = computed(() => {
+    const start = (currentOrderDetailBatchPage.value - 1) * pageSize;
+    const end = start + pageSize;
+    return listOrderWithBatch.value.slice(start, end);
+})
+//////End order batches handle////////
 
 const errors = ref({
     categorySelect: '',
