@@ -41,6 +41,10 @@ class BatchService {
         return (await this.api.patch(`/status/${id}/`, data)).data;
     }
 
+    async getBatchWithDetail(id){
+        return (await this.api.get(`/${id}/detail`)).data
+    }
+
 }
 
 export default new BatchService()

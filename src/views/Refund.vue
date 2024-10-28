@@ -121,7 +121,7 @@
 
                             <div>
                                 <el-select v-model="statusSelected" placeholder="Chọn" style="width: 240px">
-                                    <el-option label="Chưa xử lý" value="" />
+                                    <el-option label="---" value="" />
                                     <el-option label="Chưa xử lý" value="pending" />
                                     <el-option label="Đang xử lý" value="processing" />
                                     <el-option label="Hoàn tất" value="completed" />
