@@ -194,6 +194,7 @@ echoInstance.channel('admin-channel')
 
 echoInstance.channel('payment-set-status')
   .listen('.preparing', async (event) => {
+    
     if (todayOrderShow.value) {
       todayOrderStore.fetchTodayOrderList();
     }

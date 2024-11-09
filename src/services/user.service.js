@@ -41,6 +41,14 @@ class UserService {
   async resetPassword(data) {
     return (await this.api.post("/reset/password/user", data)).data;
   }
+
+  async getTopCustomerByMonth(data) {
+    return (await this.api.post("/top-customers", data)).data;
+  }
+
+  async givingPoint(data) {
+    return (await this.api.post("/giving-point", data)).data;
+  }
 }
 
 export default new UserService();

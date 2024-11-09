@@ -24,6 +24,7 @@
                                             user.unread_count_from_admin
                                         }}</span>
                                 </div>
+
                             </li>
                         </ul>
                     </div>
@@ -67,14 +68,46 @@
                                         :class="{ 'message': true, 'other-message': message.sender_id != userSelected.id, 'my-message': message.sender_id === userSelected.id }">
                                         {{ message.message }}
                                     </div>
+                                    <div v-if="message.products && JSON.parse(message.products).length"
+                                        class="product-list-inline-container mt-2">
+                                        <div class="product-list-inline d-flex flex-row-reverse">
+                                            <div v-for="product in JSON.parse(message.products)"
+                                                :key="product.product_id" class="card product-card me-2 mb-2"
+                                                style="width: 150px;">
+                                                <img :src="apiUrl + product.product_img" class="card-img-top"
+                                                    alt="product image" style="height: 100px; object-fit: cover;">
+                                                <div class="card-body p-2">
+                                                    <h6 class="card-title text-center">{{ product.product_name }}</h6>
+                                                    <p class="card-text text-muted mb-0 text-center">{{
+                                                        formatCurrency(product.product_price) }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </li>
                             </ul>
                         </div>
                         <div class="chat-message clearfix">
+                            <div v-if="selectedProducts.length" class="selected-product-preview mb-2">
+                                <div class="d-flex flex-wrap">
+                                    <div v-for="product in selectedProducts" :key="product.id"
+                                        class="selected-product d-flex align-items-center me-3 mb-2">
+                                        <img :src="apiUrl + JSON.parse(product.product_img)[0]" alt="product image"
+                                            class="rounded me-2" style="width: 50px; height: 50px; object-fit: cover;">
+                                        <div>
+                                            <p class="mb-0" style="font-size: 12px;">{{ product.name }}</p>
+                                            <el-button type="danger" @click="removeProduct(product)" :icon="Delete"
+                                                circle />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                             <div class="input-group mb-0">
                                 <span class="input-group-text">📤</span>
                                 <input v-model="messageSend" type="text" class="form-control"
                                     placeholder="Nhập nội dung..." @keyup.enter="handleCreateMessage">
+                                <button @click="showProductModal = true" class="btn btn-outline-secondary">Chọn sản
+                                    phẩm</button>
                             </div>
                         </div>
                     </div>
@@ -82,16 +115,65 @@
             </div>
         </div>
     </div>
+    <div v-if="showProductModal" class="modal fade show d-block" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Chọn sản phẩm</h5>
+                    <button type="button" class="btn-close" @click="showProductModal = false"
+                        aria-label="Close"></button>
+                </div>
+
+                <!-- Phần lọc danh mục sản phẩm -->
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <select v-model="selectedCategory" class="form-select" @change="filterProducts">
+                            <option value="">Tất cả danh mục</option>
+                            <option v-for="category in listCategory" :key="category.category_id"
+                                :value="category.category_id">
+                                {{ category.category_name }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Danh sách sản phẩm -->
+                    <div class="product-list">
+                        <div v-for="product in filteredProducts" :key="product.product_id"
+                            class="d-flex align-items-center mb-3">
+                            <img :src="apiUrl + JSON.parse(product.product_img)[0]" alt="product image" class="me-3"
+                                style="width: 80px; height: 60px; object-fit: cover;">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">{{ product.product_name }}</h6>
+                                <p class="mb-1">{{ formatCurrency(product.product_price) }}</p>
+                            </div>
+                            <!-- Ô chọn sản phẩm -->
+                            <input type="checkbox" :value="product" v-model="selectedProducts">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @click="showProductModal = false">Đóng</button>
+                    <button type="button" class="btn btn-primary" @click="confirmSelection">Chọn sản phẩm</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script setup>
-
+import {
+    Delete,
+} from '@element-plus/icons-vue'
 import { onMounted, ref, watch, computed } from "vue";
 import messageService from "../services/message.service";
 import { convertTime } from "../helpers/UtilHelper"
 import { initializeEcho } from "../pusher/echoConfig";
 import { useAuthStore } from "@/stores/auth";
 import userService from "../services/user.service";
+import categoryService from "../services/category.service";
+import productService from "../services/product.service";
+import { formatCurrency } from '../helpers/UtilHelper';
 const apiUrl = import.meta.env.VITE_APP_API_URL;
 const search = ref("");
 const loading = ref(false)
@@ -101,8 +183,9 @@ const messages = ref([]);
 const authStore = useAuthStore();
 const userSelected = ref({});
 const userId = computed(() => authStore.admin_id);
-
+const listCategory = ref([]);
 const messageSend = ref("");
+const products = ref([]);
 echoInstance.channel(`chat.${userId.value}`).listen('.message.sent', async (event) => {
     // const response = await notificationStore.getAll();
     handleFetchMessageById(userSelected.value.id);
@@ -112,20 +195,50 @@ echoInstance.channel(`chat.${userId.value}`).listen('.message.sent', async (even
 
 const handleCreateMessage = async () => {
     try {
+        // Kiểm tra nếu có sản phẩm được chọn
+        const products = selectedProducts.value.length
+            ? selectedProducts.value.map(product => ({
+                product_id: product.product_id,
+                product_name: product.product_name,
+                product_img: JSON.parse(product.product_img)[0],
+                product_price: product.product_price
+            }))
+            : null;
+
         const response = await messageService.create({
             message: messageSend.value,
-            receiver_id: userSelected.value.id
+            receiver_id: userSelected.value.id,
+            products: products // Gửi thông tin chi tiết sản phẩm
         });
 
         messageSend.value = "";
-
-        console.log(messageSend.value, userSelected.value.id);
-
-        console.log(response);
-
+        selectedProducts.value = []; // Xóa danh sách sản phẩm sau khi gửi
         handleFetchMessageById(userSelected.value.id);
     } catch (error) {
         console.log(error.response);
+    }
+};
+
+
+const fetchCategory = async () => {
+    try {
+        const response = await categoryService.getAll();
+        listCategory.value = response.listCategory;
+        // console.log("List category ref store: ", response);
+    } catch (error) {
+        console.log(error.response);
+        throw error;
+    }
+}
+
+const fetchProduct = async () => {
+    try {
+        const response = await productService.getAll();
+        products.value = response.listProduct;
+        return response;
+    } catch (error) {
+        console.log(error.response);
+        throw error;
     }
 }
 
@@ -176,11 +289,74 @@ onMounted(() => {
     handleFetchAllUser().then(() => {
         userSelected.value = listUser.value[0];
     })
+    fetchCategory();
+    fetchProduct();
 });
+
+const showProductModal = ref(false);
+const selectedCategory = ref("");
+const selectedProducts = ref([]);
+
+
+// Lọc sản phẩm theo danh mục
+const filteredProducts = computed(() => {
+    if (!selectedCategory.value) return products.value;
+    return products.value.filter(product => product.category_id === selectedCategory.value);
+});
+
+// Xác nhận lựa chọn sản phẩm
+const confirmSelection = () => {
+    console.log("Sản phẩm đã chọn:", selectedProducts.value);
+    showProductModal.value = false;
+};
+
+const removeProduct = (product) => {
+    selectedProducts.value = selectedProducts.value.filter(p => p.product_id !== product.product_id);
+};
 
 </script>
 
 <style scoped>
+.product-list {
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+/* Đảm bảo container của danh sách sản phẩm nằm sát bên phải */
+.product-list-inline-container {
+    display: flex;
+    justify-content: flex-end;
+    /* Đẩy toàn bộ phần product-list-inline sang bên phải */
+}
+
+/* Thiết lập flex cho product-list-inline */
+.product-list-inline {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    max-width: 100%;
+    gap: 10px;
+}
+
+/* Đảm bảo các thẻ sản phẩm có chiều rộng cố định */
+.product-list-inline .product-card {
+    flex: 0 0 auto;
+}
+
+.product-list-inline::-webkit-scrollbar {
+    height: 8px;
+}
+
+.product-list-inline::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 4px;
+}
+
+.product-list-inline::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+}
+
 .card {
     background: #fff;
     transition: .5s;

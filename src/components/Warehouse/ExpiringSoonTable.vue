@@ -9,7 +9,66 @@
                 <el-button style="height: 38px;" @click="handleFilterBatch">Lọc</el-button>
             </div>
             <el-button style="height: 38px;" @click="centerDialogVisible = true">Nhập hàng</el-button>
+            <el-button style="height: 38px; margin: 0;" @click="isShowCreatePromotionForm = true">Tạo khuyến
+                mãi</el-button>
         </div>
+        <el-dialog v-model="isShowCreatePromotionForm" title="Tạo khuyến mãi" width="700" destroy-on-close center>
+            <div class="mb-3">
+                <label for="promotionName" class="form-label">Tên khuyến mãi</label>
+                <input v-model="promotionData.promotionName" type="text" class="form-control" id="promotionName"
+                    placeholder="Nhập tên chương trình khuyến mãi">
+            </div>
+            <div class="mb-3">
+                <label for="discount" class="form-label">Phần trăm khuyến mãi</label>
+                <input v-model="promotionData.discountPercentage" @input="handleInput" type="number"
+                    class="form-control" id="discount" placeholder="Nhập phần trăm khuyến mãi" min="0" max="100">
+                <div v-if="discountError" class="text-danger">{{ discountError }}</div>
+            </div>
+            <div class="mb-3">
+                <label for="discount" class="form-label me-2">Nhóm người dùng</label>
+                <el-select v-model="promotionData.roles" placeholder="Chọn danh mục" style="width: 180px" clearable
+                    multiple disabled>
+                    <el-option label="normal_user" value="normal_user" />
+                    <el-option label="loyal_customer" value="loyal_customer" />
+                </el-select>
+                <div v-if="discountError" class="text-danger">{{ discountError }}</div>
+            </div>
+            <div class="mb-3">
+                <div class="flex flex-wrap gap-4 items-center">
+                    <el-select placeholder="Chọn lô" style="width: 180px" :model-value="'Sắp hết hạn'">
+                        <el-option label="Sắp hết hạn" value="Sắp hết hạn" :selected="true" />
+                    </el-select>
+
+                    <el-select v-model="promotionData.batchSelect" placeholder="--Chọn--" style="width: 180px" clearable
+                        multiple>
+                        <el-option v-for="data in listBatch" :key="data.batch_id" :value="data.batch_id">
+                            {{ data.batch_id }} - {{ data.product.product_name }} - Còn lại {{
+                                daysUntil(data.expiry_date) }} ngày
+                        </el-option>
+                    </el-select>
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="startDate" class="form-label me-2">Ngày bắt đầu</label>
+                <el-date-picker v-model="promotionData.startDate" type="date" placeholder="Pick a day" size="default" />
+            </div>
+            <div class="mb-3">
+                <label for="endDate" class="form-label me-2">Ngày kết thúc</label>
+                <el-date-picker v-model="promotionData.endDate" type="date" placeholder="Pick a day" size="default" />
+            </div>
+
+            <div>
+
+            </div>
+            <template #footer>
+                <div class="dialog-footer">
+                    <el-button @click="isShowCreatePromotionForm = false">Hủy</el-button>
+                    <el-button style="background-color: black; color: white;" @click="handleCreatePromotion">
+                        Tạo
+                    </el-button>
+                </div>
+            </template>
+        </el-dialog>
         <el-dialog v-model="centerDialogVisible" title="NHẬP HÀNG" width="900" destroy-on-close center>
             <div class="row mb-3">
                 <div class="col">
@@ -87,7 +146,7 @@
                     <th class="col text-center">Ngày nhập</th>
                     <th class="col text-center">Ngày hết hạn</th>
                     <th class="col text-center">Người nhập</th>
-                    
+
                 </tr>
             </thead>
             <tbody>
@@ -104,7 +163,7 @@
                     <td class="text-center">{{ formatDate(batch.entry_date) }}</td>
                     <td class="text-center">{{ formatDate(batch.expiry_date) }}</td>
                     <td class="text-center">{{ batch.user.name }}</td>
-                   
+
                 </tr>
             </tbody>
         </table>
@@ -125,7 +184,10 @@ import batchService from '../../services/batch.service';
 import productService from '../../services/product.service';
 import { showLoading } from '../../helpers/LoadingHelper';
 import { formatCurrency } from '../../helpers/UtilHelper'
+import promotionService from '@/services/promotion.service';
+import { showWarning, showSuccess } from '../../helpers/NotificationHelper';
 
+const discountError = ref('');
 const dateSelect = ref([]);
 const centerDialogVisible = ref(false)
 const currentPage = ref(1);
@@ -137,7 +199,18 @@ const categoryStore = useCategoryStore();
 const categorySelect = ref("");
 const productSelect = ref("");
 const listProductByCategory = ref([]);
-
+const isShowCreatePromotionForm = ref(false);
+const promotionData = ref({
+    promotionName: '',
+    discountPercentage: 0,
+    roles: [
+        'normal_user',
+        'loyal_customer',
+    ],
+    batchSelect: [],
+    startDate: '',
+    endDate: '',
+});
 const errors = ref({
     categorySelect: '',
     productSelect: '',
@@ -190,6 +263,47 @@ const validateFields = () => {
 
     return isValid;
 };
+
+const handleCreatePromotion = async () => {
+    const loading = showLoading();
+    try {
+        if (discountError.value === '' && promotionData.value.promotionName !== '') {
+            const convertToDateString = (timestamp) => {
+                const date = new Date(timestamp * 1000);
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+            promotionData.value.startDate = convertToDateString(Math.floor(new Date(promotionData.value.startDate).getTime() / 1000));
+            promotionData.value.endDate = convertToDateString(Math.floor(new Date(promotionData.value.endDate).getTime() / 1000));
+            console.log("Sending request with data:", promotionData.value);
+            const response = await promotionService.createBatch({
+                "promotion_name": promotionData.value.promotionName,
+                "discount_percentage": promotionData.value.discountPercentage,
+                "user_group": promotionData.value.roles,
+                "batch_select": promotionData.value.batchSelect,
+                "start_date": promotionData.value.startDate,
+                "end_date": promotionData.value.endDate
+            });
+            console.log("Response from server:", response);
+            setTimeout(() => {
+                loading.close();
+                showSuccess("Tạo khuyến mãi thành công");
+            }, 500);
+            // console.log(response);
+            isShowCreatePromotionForm.value = false;
+        }
+
+        // console.log("create promotion: ", promotionData.value);
+    } catch (error) {
+        console.log(error);
+        if (error.response.data.error == 'exists') {
+            showWarning(`Sản phẩm ${error.response.data.product.product_name} đã tồn tại khuyến mãi`, 'right');
+        }
+        loading.close();
+    }
+}
 
 
 const batchData = ref({
@@ -350,6 +464,17 @@ const handleCurrentChange = (val) => {
     currentPage.value = val;
     console.log(`current page: ${val}`);
 };
+
+const daysUntil = (targetDate) => {
+    const now = new Date();
+    const endDate = new Date(targetDate);
+
+    const timeDifference = endDate - now;
+
+    const daysDifference = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
+
+    return daysDifference;
+}
 </script>
 
 

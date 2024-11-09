@@ -11,7 +11,8 @@
                 @change="handleSearch" v-model="search" />
               <el-select v-model="currentRole" placeholder="Chọn" style="width: 160px;" size="large">
                 <el-option label="Tất cả" value="" />
-                <el-option v-for="item in customerRoles" :key="item.id" :label="item.name" :value="item.name"
+                <el-option v-for="item in customerRoles" :key="item.id"
+                  :label="item.name == 'normal_user' ? 'Khách hàng' : 'Khách hàng thân thiết'" :value="item.name"
                   :disabled="item.disabled" />
               </el-select>
               <span class="ms-2 mt-3" style="font-size: 16px">Kết quả: {{ search ? datasearch.length : userStore.length
@@ -50,7 +51,7 @@
                   <td>{{ user.name }}</td>
                   <td>{{ user.email }}</td>
                   <td>{{ user.point }}</td>
-                  <td>{{ user.role }}</td>
+                  <td>{{ user.role == 'normal_user' ? 'Khách hàng' : 'Khách hàng thân thiết' }}</td>
                   <td>{{ convertTime(user.created_at) }}</td>
                   <td>{{ convertTime(user.updated_at) }}</td>
                   <td>

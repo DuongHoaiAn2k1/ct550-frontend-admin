@@ -17,10 +17,13 @@
                             <th>STT</th>
                             <th class="col text-center">Tên khuyến mãi</th>
                             <th class="col text-center">Phần trăm khuyến mãi</th>
-                            <th class="col text-center">Nhóm sản phẩm</th>
+                            <th class="col text-center">Nhóm sản phẩm/Lô</th>
                             <th class="col text-center">Nhóm người dùng</th>
+                            <th class="col text-center">Áp dụng</th>
+                            <th class="col text-center">Trạng thái</th>
                             <th class="col text-center">Thời gian bắt đầu</th>
                             <th class="col text-center">Thời gian kết thúc</th>
+                            <th class="col text-center"></th>
                             <th class="col text-center"></th>
                             <th class="col text-center"></th>
                         </tr>
@@ -34,7 +37,7 @@
                                 {{ promotion.discount_percentage }} %
                             </td>
                             <td class="col ">
-                                <span class="row">
+                                <span class="row" v-show="promotion.apply_to == 'product_group'">
                                     <span class="col" style="display: block;">
                                         <span v-for="item in promotion.product_promotion" :key="item.id"
                                             style="display: block;">{{
@@ -45,6 +48,21 @@
                                     <span class="col text-end">
                                         <el-button :icon="Edit" @click="handleProductPromotion(promotion)" />
                                     </span>
+                                </span>
+                                <span class="row" v-show="promotion.apply_to == 'batch'">
+                                    <span class="col" style="display: block;">
+                                        <span v-for="item in promotion.batch_promotion" :key="item.id"
+                                            style="display: block;">Lô {{
+                                                item.batch_id }} ({{ item.batch.product.product_name
+                                            }}),
+                                        </span>
+
+                                    </span>
+
+                                    <span class="col text-end">
+                                        <el-button :icon="Edit" @click="handleBatchPromotion(promotion)" />
+                                    </span>
+
                                 </span>
                             </td>
                             <td class="col ">
@@ -58,6 +76,8 @@
 
                                 </span>
                             </td>
+                            <td class="col "> {{ promotion.apply_to == 'batch' ? 'Lô' : 'Nhóm sản phẩm' }}</td>
+                            <td class="col "> {{ promotion.status == 'active' ? 'Hoạt động' : 'Kết thúc' }}</td>
                             <td class="col "> {{ convertTime(promotion.start_date) }}</td>
 
                             <td class="col ">
@@ -70,9 +90,15 @@
                                 </el-button>
                             </td>
                             <td class="text-center">
-                                <el-button style="background-color: red; color: white;"
+                                <el-button style="background-color: blue; color: white;"
                                     @click="handleUpdatePromotion(promotion)">
                                     Chỉnh sửa
+                                </el-button>
+                            </td>
+                            <td class="text-center">
+                                <el-button style="background-color: red; color: white;"
+                                    @click="handleEndPromotion(promotion)">
+                                    Kết thúc
                                 </el-button>
                             </td>
                         </tr>
@@ -142,7 +168,8 @@
                     <div class="mb-3">
                         <label for="discount" class="form-label me-2">Nhóm người dùng</label>
                         <el-select v-model="currentDataPromotion.user_group" placeholder="Chọn danh mục"
-                            style="width: 180px" clearable multiple>
+                            style="width: 180px" clearable multiple
+                            :disabled="currentDataPromotion.apply_to == 'batch'">
                             <el-option label="normal_user" value="normal_user" />
                             <el-option label="loyal_customer" value="loyal_customer" />
                         </el-select>
@@ -212,6 +239,45 @@
                     </template>
                 </el-dialog>
 
+                <el-dialog v-model="isShowBatchPromotion" title="Nhóm lô hàng" width="500" destroy-on-close center>
+                    <div class="mb-3">
+                        <div class="flex flex-wrap gap-4 items-center">
+                            <el-select placeholder="Chọn lô" style="width: 180px" :model-value="'Sắp hết hạn'">
+                                <el-option label="Sắp hết hạn" value="Sắp hết hạn" :selected="true" />
+                            </el-select>
+
+                            <el-select v-model="batchSelect" placeholder="--Chọn--" style="width: 180px" clearable
+                                multiple>
+                                <el-option v-for="data in filterBatches" :key="data.batch_id" :value="data.batch_id">
+                                    {{ data.batch_id }} - {{ data.product.product_name }} - Còn lại {{
+                                        daysUntil(data.expiry_date) }} ngày
+                                </el-option>
+                            </el-select>
+                        </div>
+                        <div class="mt-4">
+                            <label for="discount" class="form-label">Các lô hàng hiện tại</label>
+                            <ul>
+                                <li v-for="item in batchPromotionSelect" :key="item.id">Lô {{ item.batch_id
+                                    }} - {{ item.batch.product.product_name }} Còn lại {{
+                                        daysUntil(item.batch.expiry_date) }} ngày <el-button style="border: none;"
+                                        :icon="Delete" @click="handleDeleteBatchPromotion(item.batch_promotion_id)">
+                                    </el-button></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div>
+
+                    </div>
+                    <template #footer>
+                        <div class="dialog-footer">
+                            <el-button @click="isShowBatchPromotion = false">Hủy</el-button>
+                            <el-button style="background-color: black; color: white;" @click="handleAddBatchPromotion">
+                                Thêm
+                            </el-button>
+                        </div>
+                    </template>
+                </el-dialog>
+
 
                 <div class="text-end" v-show="endDataPromotion.length > 0">
                     <el-pagination v-model:current-page="currentPage" @current-change="handleCurrentChange" small
@@ -230,12 +296,13 @@
 import { computed, onMounted, ref, watch } from 'vue';
 import promotionService from '@/services/promotion.service';
 import { showLoading } from '../../helpers/LoadingHelper';
-import { showSuccess } from '../../helpers/NotificationHelper';
+import { showSuccess, showSuccessMessage, showWarning } from '../../helpers/NotificationHelper';
 import { convertTime } from '../../helpers/UtilHelper';
 import { Edit, Delete } from '@element-plus/icons-vue'
 import categoryService from '../../services/category.service';
 import productService from '../../services/product.service';
 import productPromotionService from '../../services/productPromotion.service';
+import batchService from '../../services/batch.service';
 
 const currentPage = ref(1);
 const pageSize = 8;
@@ -246,12 +313,15 @@ const discountError = ref('');
 const categorySelect = ref("");
 const listProduct = ref([]);
 const productSelect = ref([]);
+const batchSelect = ref([]);
 const promotionIdSelect = ref("");
 const discountPercentage = ref(0);
 const productPromotionSelect = ref([]);
-
+const batchPromotionSelect = ref([]);
+const listBatch = ref([]);
 const isShowCreatePromotionForm = ref(false);
 const isShowProductPromotion = ref(false);
+const isShowBatchPromotion = ref(false);
 const isShowUpdatePromotionForm = ref(false);
 const promotionData = ref({
     promotionName: '',
@@ -275,10 +345,24 @@ const fetchListCategory = async () => {
     }
 }
 
+const fetchListBatch = async () => {
+    try {
+        const response = await batchService.getExpringSoonList();
+        listBatch.value = response.data;
+    } catch (error) {
+        console.log(error);
+    }
+};
+
 const filteredProducts = computed(() => {
     const selectedIds = productPromotionSelect.value.map(item => item.product.product_id);
     return listProduct.value.filter(product => !selectedIds.includes(product.product_id));
 });
+
+const filterBatches = computed(() => {
+    const selectedIds = batchPromotionSelect.value.map(item => item.batch.batch_id);
+    return listBatch.value.filter(batch => !selectedIds.includes(batch.batch_id));
+})
 
 const handleDeleteProductPromotion = async (id) => {
     try {
@@ -287,6 +371,17 @@ const handleDeleteProductPromotion = async (id) => {
         showSuccess("Xóa sản phẩm thành công");
         handleFetchPromotion();
         isShowProductPromotion.value = false;
+    } catch (error) {
+        console.log(error.response);
+    }
+}
+
+const handleDeleteBatchPromotion = async (id) => {
+    try {
+        const response = await batchService.deleteBatchPromotion(id);
+        showSuccessMessage("Xóa lô hàng thành công");
+        handleFetchPromotion();
+        isShowBatchPromotion.value = false;
     } catch (error) {
         console.log(error.response);
     }
@@ -358,6 +453,25 @@ const handleUpdatePromotion = (promotion) => {
     isShowUpdatePromotionForm.value = true;
 };
 
+const handleEndPromotion = (promotion) => {
+    const loading = showLoading();
+    endPromotion(promotion.promotion_id).then(() => {
+        loading.close();
+        showSuccessMessage("Kết thúc khuyến mãi thành công");
+        handleFetchPromotion();
+    });
+}
+
+const endPromotion = async (id) => {
+    try {
+        const response = await promotionService.endPromotion(id);
+        return response;
+    } catch (error) {
+        console.log(error.response);
+        throw error;
+    }
+}
+
 const handleSubmitUpdatePromotion = async () => {
     // console.log("Current data Promotion: ", currentDataPromotion.value);
     try {
@@ -409,29 +523,70 @@ const handleSubmitUpdatePromotion = async () => {
 
 const handleAddProductPromotion = async () => {
     try {
-        productSelect.value.forEach(async (id) => {
-            const response = await productPromotionService.create({
+        // Tạo một mảng các promises cho từng lần gọi API
+        const promises = productSelect.value.map((id) => {
+            return productPromotionService.create({
                 promotion_id: promotionIdSelect.value,
                 product_id: id,
                 discount_price: (discountPercentage.value * getProductPriceById(id)) / 100
+            }).then((response) => {
+                console.log(response);
+                handleFetchPromotion();
+                return response;
             });
-            // console.log('Get product id: ', getProductPriceById(id));
-            console.log(response);
-            // console.log(id);
-            handleFetchPromotion();
-        })
+        });
+
+        await Promise.all(promises);
+
         productSelect.value = [];
         categorySelect.value = '';
         showSuccess("Điều chỉnh nhóm sản phẩm thành công");
         isShowProductPromotion.value = false;
+
     } catch (error) {
         console.log(error.response);
+        showWarning('Sản phẩm lựa chọn đã có khuyến mãi');
     }
 }
 
 
+const handleAddBatchPromotion = async () => {
+    try {
+        // Tạo một mảng promises cho từng lần gọi API
+        const promises = batchSelect.value.map((id) => {
+            return batchService.createBatchPromotion({
+                promotion_id: promotionIdSelect.value,
+                batch_id: id,
+                discount_price: (discountPercentage.value * getProductPriceFromBatch(id)) / 100
+            }).then((response) => {
+                console.log(response);
+                handleFetchPromotion();
+                return response;
+            });
+        });
+
+        // Chờ cho đến khi tất cả promises hoàn tất
+        await Promise.all(promises);
+
+        // Hiển thị thông báo thành công sau khi tất cả các API thành công
+        batchSelect.value = [];
+        showSuccessMessage("Điều chỉnh nhóm lô hàng thành công");
+        isShowBatchPromotion.value = false;
+
+    } catch (error) {
+        console.log(error.response);
+        showWarning('Lô hàng lựa chọn đã có khuyến mãi');
+    }
+}
+
+
+
 const getProductPriceById = (id) => {
     return listProduct.value.filter((data) => data.product_id == id)[0].product_price;
+}
+
+const getProductPriceFromBatch = (id) => {
+    return listBatch.value.filter((data) => data.batch_id == id)[0].product.product_price;
 }
 
 const handleProductPromotion = (promotion) => {
@@ -439,6 +594,13 @@ const handleProductPromotion = (promotion) => {
     productPromotionSelect.value = promotion.product_promotion;
     discountPercentage.value = promotion.discount_percentage;
     isShowProductPromotion.value = !isShowProductPromotion.value
+}
+
+const handleBatchPromotion = (promotion) => {
+    promotionIdSelect.value = promotion.promotion_id;
+    batchPromotionSelect.value = promotion.batch_promotion;
+    discountPercentage.value = promotion.discount_percentage;
+    isShowBatchPromotion.value = !isShowBatchPromotion.value;
 }
 
 
@@ -536,6 +698,7 @@ const endDataPromotion = computed(() => {
 onMounted(() => {
     handleFetchPromotion();
     fetchListCategory();
+    fetchListBatch();
 })
 
 const handleInput = () => {
@@ -560,7 +723,16 @@ const handleCurrentChange = (val) => {
     console.log(`current page: ${val}`);
 };
 
+const daysUntil = (targetDate) => {
+    const now = new Date();
+    const endDate = new Date(targetDate);
 
+    const timeDifference = endDate - now;
+
+    const daysDifference = Math.ceil(timeDifference / (1000 * 60 * 60 * 24));
+
+    return daysDifference;
+}
 </script>
 
 <style scoped>

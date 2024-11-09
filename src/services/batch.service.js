@@ -45,6 +45,14 @@ class BatchService {
         return (await this.api.get(`/${id}/detail`)).data
     }
 
+    async deleteBatchPromotion (id) {
+        return (await this.api.delete(`/promotion/${id}`)).data
+    }
+
+    async createBatchPromotion (data) {
+        return (await this.api.post('/promotion/create', data)).data
+    }
+
 }
 
 export default new BatchService()

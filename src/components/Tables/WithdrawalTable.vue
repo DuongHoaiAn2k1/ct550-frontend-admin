@@ -9,6 +9,7 @@
                     <th class="col text-center">STT</th>
                     <th class="col text-center">Mã yêu cầu</th>
                     <th class="col text-center">Khách hàng</th>
+                    <th class="col text-center">Số tiền</th>
                     <th class="col text-center">Tên ngân hàng</th>
                     <th class="col text-center">STK</th>
                     <th class="col text-center">Tên chủ tài khoản</th>
@@ -25,6 +26,10 @@
                     </td>
                     <td class="text-center">
                         {{ item.affiliate_user.name }}
+                    </td>
+
+                    <td class="text-center">
+                        {{ formatCurrency(item.amount) }}
                     </td>
 
                     <td class="text-center">

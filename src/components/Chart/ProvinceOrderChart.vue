@@ -28,7 +28,7 @@ const chartData = computed(() => ({
     datasets: [{
         label: 'Số đơn hàng',
         data: props.provinceData.map(item => item.orders),
-        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
         borderColor: 'rgba(75, 192, 192, 1)',
         borderWidth: 1
     }]

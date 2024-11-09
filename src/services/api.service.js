@@ -1,5 +1,6 @@
 import axios from "axios";
 import Cookies from "js-cookie";
+const domain = import.meta.env.VITE_APP_DOMAIN_NAME;
 
 const commonConfig = {
   headers: {
@@ -38,7 +39,7 @@ export default (baseURL) => {
         
       ) {
         
-        window.location.href = "https://client.dacsancamau.com:3002/tokenProcess";
+        window.location.href = domain + "/tokenProcess";
 
       }
 
@@ -49,13 +50,13 @@ export default (baseURL) => {
         
       ) {
         
-        window.location.href = "https://client.dacsancamau.com:3002/tokenProcess";
+        window.location.href = domain + "/tokenProcess";
 
       }
 
       if(error.request && error.response.status == 401 && error.response.statusText == "Unauthorized"){
       
-        window.location.href = "https://client.dacsancamau.com:3002/tokenProcess";
+        window.location.href = domain + "/tokenProcess";
         // localStorage.setItem("processRefreshToken", true);
         // alert("Ngu");
       }
@@ -65,7 +66,7 @@ export default (baseURL) => {
         error.response.data.message == "Token has expired"
       ) {
        
-        window.location.href = "https://client.dacsancamau.com:3002/tokenProcess";
+        window.location.href = domain + "/tokenProcess";
         
       }
 
@@ -76,7 +77,7 @@ export default (baseURL) => {
           // Cookies.remove("access_token");
           // Cookies.remove("refresh_token");
           // Cookies.remove("admin_id");
-          window.location.href = "https://client.dacsancamau.com:3002/login";
+          window.location.href = domain + "/login";
       }
       // if (
       //   error.request &&

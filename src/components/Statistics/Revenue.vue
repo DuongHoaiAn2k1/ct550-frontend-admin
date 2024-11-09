@@ -71,7 +71,7 @@ import { onMounted, ref, computed } from 'vue';
 import statisticService from '../../services/statistic.service';
 import { formatCurrency } from '../../helpers/UtilHelper';
 import BarChart from '../Chart/BarChart.vue';
-const monthSelect = ref(new Date(2024, 9, 1));
+const monthSelect = ref(new Date(2024, 10, 1));
 const totalSale = ref(0);
 const totalProfit = ref(0);
 const yearSelect = ref(new Date(2024, 0, 1));

@@ -13,6 +13,10 @@ import createApiClient from "./api.service";
         return (await this.api.post("/", data)).data
     }
 
+    async createBatch(data){
+        return (await this.api.post("/batch", data)).data
+    }
+
     async update(data, id){
         return (await this.api.patch(`/${id}`, data)).data
     }
@@ -31,6 +35,10 @@ import createApiClient from "./api.service";
 
     async getDetail(id){
         return (await this.api.get(`/detail/${id}`)).data;
+    }
+
+    async endPromotion(id){
+        return (await this.api.patch(`/end/${id}`)).data
     }
 }
 

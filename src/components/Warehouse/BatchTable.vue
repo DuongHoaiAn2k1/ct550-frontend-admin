@@ -89,6 +89,7 @@
                     <th class="col text-center">Người nhập</th>
                     <th class="col text-center"></th>
                     <th class="col text-center"></th>
+                    <th class="col text-center"></th>
                 </tr>
             </thead>
             <tbody>
@@ -109,7 +110,9 @@
                             hàng</el-button></td>
                     <td class="text-center"> <el-button @click="showBoxBatchDetail(batch.batch_id)">Xem đơn</el-button>
                     </td>
-
+                    <td class="text-center"> <el-button @click="showBoxBatchEdit(batch.batch_id)"><i
+                                class="fa-regular fa-pen-to-square"></i></el-button>
+                    </td>
                 </tr>
             </tbody>
         </table>
@@ -123,7 +126,7 @@
         </div>
     </div>
 
-    <el-dialog v-model="showOrderDetailBatch" title="Yêu cầu hoàn tiền của bạn" width="1000" center>
+    <el-dialog v-model="showOrderDetailBatch" title="Thông tin đơn hàng của lô" width="1000" center>
         <section class="intro">
             <div class="gradient-custom-1 h-100">
                 <div class="mask d-flex align-items-center h-100">
@@ -185,6 +188,58 @@
             </div>
         </section>
     </el-dialog>
+
+    <el-dialog v-model="showEditBatch" title="Cập nhật lô hàng" width="900" center>
+        <div class="mb-3">Lô hàng #{{ currentBatchEditHandle.batch_id }}</div>
+        <div class="row">
+            <div class="col">
+                <div class="mb-3">
+                    <label for="exampleFormControlInput1" class="form-label fw-bold">Giá nhập (Tổng lô hàng)</label>
+                    <input type="text" class="form-control" id="exampleFormControlInput1"
+                        v-model="currentBatchEditHandle.batch_cost" placeholder="Giá nhập">
+                    <div v-if="errorUpdate.batch_cost" class="text-danger">{{ formatCurrency(errorUpdate.batch_cost) }}
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="mb-3">
+                    <label for="exampleFormControlInput1" class="form-label fw-bold">Số lượng sản phẩm trong lô hàng
+                    </label>
+                    <input type="text" class="form-control" id="exampleFormControlInput1"
+                        v-model="currentBatchEditHandle.quantity" placeholder="Số lượng nhập">
+                    <div v-if="errorUpdate.quantity" class="text-danger">{{ errorUpdate.quantity }}</div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="mb-3">
+                    <label for="exampleFormControlInput1" class="form-label fw-bold">Ngày nhập</label>
+                    <div><el-date-picker v-model="currentBatchEditHandle.entry_date" type="date"
+                            placeholder="Pick a day" size="default" />
+                    </div>
+                    <div v-if="errorUpdate.entry_date" class="text-danger">{{ errorUpdate.entry_date }}</div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="mb-3">
+                    <label for="exampleFormControlInput1" class="form-label fw-bold">Ngày hết hạn</label>
+                    <div><el-date-picker v-model="currentBatchEditHandle.expiry_date" type="date"
+                            placeholder="Pick a day" size="default" />
+                    </div>
+                    <div v-if="errorUpdate.expiry_date" class="text-danger">{{ errorUpdate.expiry_date }}</div>
+                </div>
+            </div>
+        </div>
+        <template #footer>
+            <div class="dialog-footer">
+                <el-button @click="showEditBatch = false">Hủy</el-button>
+                <el-button type="primary" @click="handleUpdate">
+                    Cập nhật
+                </el-button>
+            </div>
+        </template>
+    </el-dialog>
 </template>
 
 <script setup>
@@ -208,8 +263,10 @@ const productSelect = ref("");
 const listProductByCategory = ref([]);
 const showOrderDetailBatch = ref(false);
 const listOrderWithBatch = ref([]);
+const showEditBatch = ref(false);
+const batchIdSellectToEdit = ref(0);
 
-
+const currentBatchEditHandle = ref([]);
 
 //////Begin order batches handle////////
 
@@ -222,6 +279,14 @@ const showBoxBatchDetail = (id) => {
     fetchOrderDetailBatch(id);
 }
 
+const showBoxBatchEdit = (id) => {
+    batchIdSellectToEdit.value = id;
+    getDetailBatch(id).then(() => {
+        showEditBatch.value = true;
+    });
+
+}
+
 const fetchOrderDetailBatch = async (id) => {
     try {
         const response = await batchService.getBatchWithDetail(id);
@@ -229,6 +294,18 @@ const fetchOrderDetailBatch = async (id) => {
         console.log('listOrderWithBatch', response);
     } catch (error) {
         console.log(error)
+    }
+}
+
+const getDetailBatch = async (id) => {
+    try {
+        const response = await batchService.get(id);
+        console.log('batch detail', response);
+        currentBatchEditHandle.value = response.data;
+        return response;
+    } catch (error) {
+        console.log(error);
+        throw error;
     }
 }
 
@@ -247,6 +324,45 @@ const errors = ref({
     entry_date: '',
     expiry_date: ''
 });
+
+const errorUpdate = ref({
+    batch_cost: '',
+    quantity: '',
+    entry_date: '',
+    expiry_date: ''
+})
+
+const validateUpdateFields = () => {
+    let isValid = true;
+    errorUpdate.value = {
+        batch_cost: '',
+        quantity: '',
+        entry_date: '',
+        expiry_date: ''
+    };
+
+    if (!currentBatchEditHandle.value.batch_cost) {
+        errorUpdate.value.batch_cost = 'Không được để trống giá';
+        isValid = false;
+    }
+
+    if (!currentBatchEditHandle.value.quantity) {
+        errorUpdate.value.quantity = 'Không được để trống số lượng';
+        isValid = false;
+    }
+
+    if (!currentBatchEditHandle.value.entry_date) {
+        errorUpdate.value.entry_date = 'Ngày nhập không được để trống';
+        isValid = false;
+    }
+
+    if (!currentBatchEditHandle.value.expiry_date) {
+        errorUpdate.value.expiry_date = 'Ngày hết hạn không được để trống';
+        isValid = false;
+    }
+
+    return isValid;
+}
 
 const validateFields = () => {
     let isValid = true;
@@ -361,7 +477,7 @@ const handleCreate = async () => {
         const response = await batchService.create(batchData.value).finally(() => {
             loading.close();
             fetchListBatch();
-            centerDialogVisible.value = false;
+
         })
         console.log(response);
         // console.log("BatchData: ", batchData.value);
@@ -369,6 +485,39 @@ const handleCreate = async () => {
         console.log(error);
     }
 };
+
+const handleUpdate = async () => {
+    if (!validateUpdateFields()) {
+        alert('Vui lý định dạng');
+        return;
+    }
+    try {
+        const convertToDateString = (timestamp) => {
+            const date = new Date(timestamp * 1000);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        };
+
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(currentBatchEditHandle.value.entry_date)) {
+            currentBatchEditHandle.value.entry_date = convertToDateString(Math.floor(new Date(currentBatchEditHandle.value.entry_date).getTime() / 1000));
+        }
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(currentBatchEditHandle.value.expiry_date)) {
+            currentBatchEditHandle.value.expiry_date = convertToDateString(Math.floor(new Date(currentBatchEditHandle.value.expiry_date).getTime() / 1000));
+        }
+        const loading = showLoading();
+        const response = await batchService.update(currentBatchEditHandle.value.batch_id, currentBatchEditHandle.value).finally(() => {
+            loading.close();
+            fetchListBatch();
+            showEditBatch.value = false;
+        })
+        console.log(response);
+
+    } catch (error) {
+        console.log(error);
+    }
+}
 
 const hidden = async (id) => {
     try {

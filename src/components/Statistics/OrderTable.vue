@@ -50,7 +50,7 @@
                         </td>
                         <td>{{ formatCurrency(order.shipping_fee) }}</td>
                         <td>
-                            {{ formatCurrency(order.total_cost) }}
+                            {{ formatCurrency(order.total_cost - order.shipping_fee) }}
                         </td>
                         <td>
                             {{ convertTime(order.created_at) }}

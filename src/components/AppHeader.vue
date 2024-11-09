@@ -28,7 +28,7 @@
             class="fa-solid fa-bell"></i>
           <span class="badge rounded-pill badge-notification bg-danger sub-cart-design">{{
             unReadNumber || 0
-          }}</span></a>
+            }}</span></a>
 
         <div v-if="isNotiticationBox && authStore.isAdminLoggedIn" class="notification-container">
           <Notification />
@@ -101,6 +101,11 @@ const handleLogout = async () => {
     console.log(error.response);
   }
 };
+
+echoInstance.channel('payment-set-status')
+  .listen('.preparing', async (event) => {
+    fetchNotifications();
+  });
 
 echoInstance.channel('admin-channel')
   .listen('.order.created', async (event) => {
