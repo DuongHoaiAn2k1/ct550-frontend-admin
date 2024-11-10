@@ -3,10 +3,10 @@ name: Deploy Vue.js Application
 on:
   push:
     branches:
-      - main
+      - production
   pull_request:
     branches:
-      - main
+      - production
 
 jobs:
   deploy:
@@ -36,8 +36,8 @@ jobs:
           ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }} << 'EOF'
             set -e
             
-            mkdir -p frontend/admin
-            cd frontend/admin
+            mkdir -p /var/www/html/frontend/admin
+            cd /var/www/html/frontend/admin
       
             if [ ! -d .git ]; then
               git init
