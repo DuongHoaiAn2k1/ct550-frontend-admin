@@ -14,7 +14,8 @@
                     <th class="col text-center">Email</th>
                     <th class="col text-center">SĐT</th>
                     <th class="col text-center">Ngày bắt đầu</th>
-                    <th class="col text-center">Số dư</th>
+                    <th class="col text-center">Số dư ví</th>
+                    <th class="col text-center">Thu nhập</th>
                     <!-- <th class="col text-center">Trạng thái</th> -->
                     <!-- <th class="col text-center"></th> -->
                     <!-- <th class="col text-center"></th> -->
@@ -37,6 +38,9 @@
                     </td>
                     <td class="text-center">
                         {{ formatCurrency(item.affiliate_wallets.balance) }}
+                    </td>
+                    <td class="text-center">
+                        {{ formatCurrency(item.affiliate_wallets.income) }}
                     </td>
                 </tr>
             </tbody>
