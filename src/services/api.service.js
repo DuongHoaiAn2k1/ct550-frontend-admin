@@ -1,6 +1,6 @@
 import axios from "axios";
 import Cookies from "js-cookie";
-const domain = import.meta.env.VITE_APP_DOMAIN_NAME;
+const domain = import.meta.env.VITE_APP_DOMAIN_NAME_CLIENT;
 
 const commonConfig = {
   headers: {
