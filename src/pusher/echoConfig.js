@@ -6,7 +6,7 @@ window.Pusher = Pusher;
 export function initializeEcho() {
     window.Echo = new Echo({
         broadcaster: 'pusher',
-        key: '61b81b31e1b968bac959',
+        key: '4eef0e8c8ee6cc7b87f5',
         cluster: 'ap1',
         forceTLS: true
     });
