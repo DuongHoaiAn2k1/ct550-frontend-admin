@@ -50,7 +50,7 @@
                 <div class="col">
                     <div class="mb-3">
                         <label for="exampleFormControlInput1" class="form-label fw-bold">Ngày nhập</label>
-                        <div><el-date-picker v-model="batchData.entry_date" type="date" placeholder="Pick a day"
+                        <div><el-date-picker v-model="batchData.entry_date" type="date" placeholder="Chọn ngày"
                                 size="default" />
                         </div>
                         <div v-if="errors.entry_date" class="text-danger">{{ errors.entry_date }}</div>
@@ -59,7 +59,7 @@
                 <div class="col">
                     <div class="mb-3">
                         <label for="exampleFormControlInput1" class="form-label fw-bold">Ngày hết hạn</label>
-                        <div><el-date-picker v-model="batchData.expiry_date" type="date" placeholder="Pick a day"
+                        <div><el-date-picker v-model="batchData.expiry_date" type="date" placeholder="Chọn ngày"
                                 size="default" />
                         </div>
                         <div v-if="errors.expiry_date" class="text-danger">{{ errors.expiry_date }}</div>
@@ -151,7 +151,7 @@
                                                     {{ index + 1 }}
                                                 </th>
                                                 <td>
-                                                    #{{ data.bill_id }}
+                                                    {{ data.bill_id }}
                                                 </td>
 
                                                 <td>
@@ -190,7 +190,7 @@
     </el-dialog>
 
     <el-dialog v-model="showEditBatch" title="Cập nhật lô hàng" width="900" center>
-        <div class="mb-3">Lô hàng #{{ currentBatchEditHandle.batch_id }}</div>
+        <div class="mb-3">Lô hàng {{ currentBatchEditHandle.batch_id }}</div>
         <div class="row">
             <div class="col">
                 <div class="mb-3">
@@ -249,6 +249,7 @@ import batchService from '../../services/batch.service';
 import productService from '../../services/product.service';
 import { showLoading } from '../../helpers/LoadingHelper';
 import { formatCurrency } from '../../helpers/UtilHelper'
+import { showSuccessMessage, showWarning } from '../../helpers/NotificationHelper';
 
 const dateSelect = ref([]);
 const centerDialogVisible = ref(false)
@@ -473,11 +474,25 @@ const handleCreate = async () => {
 
         batchData.value.entry_date = convertToDateString(Math.floor(new Date(batchData.value.entry_date).getTime() / 1000));
         batchData.value.expiry_date = convertToDateString(Math.floor(new Date(batchData.value.expiry_date).getTime() / 1000));
+
+
+
         const loading = showLoading();
-        const response = await batchService.create(batchData.value).finally(() => {
+        const response = await batchService.create(batchData.value).then(() => {
             loading.close();
             fetchListBatch();
-
+            batchData.value = {};
+            categorySelect.value = '';
+            productSelect.value = '';
+            centerDialogVisible.value = false;
+            showSuccessMessage("Nhập hàng thành công");
+        }).catch((err) => {
+            // console.log(err.response.data.errors.expiry_date[0] == "Ngày hết hạn phải lớn hơn hoặc bằng ngày nhập");
+            if (err.response.data.errors.expiry_date[0] == "Ngày hết hạn phải lớn hơn hoặc bằng ngày nhập") {
+                showWarning("Thời gian không hợp lệ");
+            }
+        }).finally(() => {
+            loading.close();
         })
         console.log(response);
         // console.log("BatchData: ", batchData.value);

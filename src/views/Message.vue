@@ -61,8 +61,10 @@
                                     <div class="message-data"
                                         :class="{ 'text-end': message.sender_id != userSelected.id }">
                                         <span class="message-data-time">{{ convertTime(message.created_at) }}</span>
-                                        <img v-if="message.sender_id != userSelected.id"
+                                        <img v-if="message.sender_id != userSelected.id && !message.is_bot"
                                             src="../../public/admin/admin-img.png" alt="avatar" class="rounded-circle">
+                                        <img v-if="message.sender_id != userSelected.id && message.is_bot"
+                                            src="../../public/admin/bot-ai.webp" alt="avatar" class="rounded-circle">
                                     </div>
                                     <div
                                         :class="{ 'message': true, 'other-message': message.sender_id != userSelected.id, 'my-message': message.sender_id === userSelected.id }">
@@ -186,11 +188,10 @@ const userId = computed(() => authStore.admin_id);
 const listCategory = ref([]);
 const messageSend = ref("");
 const products = ref([]);
-echoInstance.channel(`chat.${userId.value}`).listen('.message.sent', async (event) => {
-    // const response = await notificationStore.getAll();
-    handleFetchMessageById(userSelected.value.id);
-    handleFetchAllUser();
-    // console.log('user selected ', userSelected.value);
+echoInstance.channel(`chat.1`).listen('.message.sent', async (event) => {
+    handleFetchMessageById(userSelected.value.id).then(() => {
+        handleFetchAllUser();
+    });
 });
 
 const handleCreateMessage = async () => {
@@ -255,17 +256,20 @@ const handleFetchAllUser = async () => {
 const handleFetchMessageById = async (id) => {
     try {
         const response = await messageService.get(id);
-        await messageService.adminReadMessage(id);
+        // await messageService.adminReadMessage(id);
         messages.value = response.data;
         console.log("List message ref store: ", messages.value);
+        return response;
     } catch (error) {
         console.log(error.response);
+        throw error;
     }
 }
 
 const handleActiveUser = (user) => {
     console.log(user);
     userSelected.value = user;
+    handleFetchAllUser();
 }
 
 watch(userSelected, (newData) => {
@@ -534,7 +538,9 @@ const removeProduct = (product) => {
 
 .chat .chat-history .other-message {
     background: #60d9f4;
-    text-align: right
+    text-align: left;
+    width: auto;
+    max-width: 65%;
 }
 
 .chat .chat-history .other-message:after {

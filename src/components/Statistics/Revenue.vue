@@ -173,7 +173,13 @@ const chartOptions = ref({
     maintainAspectRatio: false,
     scales: {
         y: {
-            beginAtZero: true
+            beginAtZero: true,
+            ticks: {
+                callback: function (value) {
+                    // Thêm đơn vị VND vào các giá trị trục Y
+                    return value.toLocaleString() + ' đ';
+                }
+            }
         }
     },
     plugins: {
@@ -186,6 +192,15 @@ const chartOptions = ref({
         },
         datalabels: {
             display: true
+        },
+        tooltip: {
+            callbacks: {
+                label: function (context) {
+                    // Định dạng tooltip với đơn vị VND
+                    const value = context.raw;
+                    return `${value.toLocaleString()} đ`;
+                }
+            }
         }
     }
 });

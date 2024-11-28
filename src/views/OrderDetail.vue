@@ -9,25 +9,34 @@
             <div class=" h-100">
               <div class="row">
                 <div class="card" style="border-radius: 10px">
-                  <div class="card-header px-4 py-2">
-                    <h5 class="text-muted mb-0">
-                      Tên khách hàng:
-                      {{ address.name }}
-                    </h5>
-                    <p>
-                      Trạng thái:
-                      <select v-model="orderData.status">
-                        <option value="preparing"><span class="text-primary">Đang chuẩn bị</span></option>
-                        <option value="shipping"><span class="text-warning">Đang giao</span> </option>
-                        <option value="delivered"><span class="text-success">Đã giao</span></option>
-                        <option value="cancelled"><span class="text-danger">Đã hủy</span></option>
-                      </select>
-                    </p>
-                    <p>
-                      <button class="btn btn-dark" @click="handleUpdate(orderData.status)">
-                        Cập nhật
-                      </button>
-                    </p>
+                  <div class="card-header px-4 py-2 row">
+                    <div class="col-md-8">
+                      <h5 class="text-muted mb-0">
+                        Tên khách hàng:
+                        {{ address.name }}
+                      </h5>
+                      <p>
+                        Trạng thái:
+                        <select v-model="orderData.status">
+                          <option value="preparing"><span class="text-primary">Đang chuẩn bị</span></option>
+                          <option value="shipping"><span class="text-warning">Đang giao</span> </option>
+                          <option value="delivered"><span class="text-success">Đã giao</span></option>
+                          <option value="cancelled"><span class="text-danger">Đã hủy</span></option>
+                        </select>
+                      </p>
+                      <p>
+                        <button class="btn btn-dark" @click="handleUpdate(orderData.status)">
+                          Cập nhật
+                        </button>
+                      </p>
+                    </div>
+                    <div class="col-md-4">
+                      <p style="margin: 0px !important;" v-for="item in orderData.order_detail">{{
+                        item.product.product_name }}: <span v-for="i in item.order_detail_batch">Mã lô {{ i.batch_id }}
+                          -
+                          Số lượng: {{ i.quantity }};
+                        </span></p>
+                    </div>
                   </div>
                   <div class="card-body p-4">
                     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -35,7 +44,7 @@
                         Chi tiết đơn hàng
                       </p>
                       <p class="small text-muted mb-0">
-                        Mã đơn hàng: #{{ orderData.bill_id }}
+                        Mã đơn hàng: {{ orderData.bill_id }}
                       </p>
                     </div>
                     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -167,7 +176,7 @@
                       TỔNG TIỀN THANH TOÁN:
                       <span class="h2 mb-0 ms-2">{{
                         formatCurrency(orderData.total_cost)
-                      }}</span>
+                        }}</span>
                     </h5>
                   </div>
                 </div>

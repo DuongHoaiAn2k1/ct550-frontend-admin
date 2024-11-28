@@ -4,6 +4,7 @@
         <div class="form-group pull-right contain-search">
             <input type="text" class="search form-control form-design" placeholder="Nhập từ khóa tìm kiếm"
                 v-model="userSearch" />
+            <span class="counter pull-right mt-2 ms-2">Tổng: {{ dataSearchAffiliate.length }}</span>
         </div>
 
         <table class="table table-hover table-bordered results">
@@ -34,7 +35,7 @@
                         {{ item.phone }}
                     </td>
                     <td class="text-center">
-                        {{ convertTime(item.created_at) }}
+                        {{ convertTime(item.affiliate_wallets.created_at) }}
                     </td>
                     <td class="text-center">
                         {{ formatCurrency(item.affiliate_wallets.balance) }}

@@ -44,6 +44,14 @@ class AffiliateService {
     async done(id){ 
         return (await this.api.patch(`withdrawal/update/${id}`)).data
     }
+
+    async getListAffiliateOrderSale (){
+        return (await this.api.get("sale/get-list-order-sale")).data
+    }
+
+    async calculateAffiliateStatistics(data){
+        return (await this.api.post("sale/calculate/affiliate-statistic", data)).data
+    }
 }
 
 export default new AffiliateService()

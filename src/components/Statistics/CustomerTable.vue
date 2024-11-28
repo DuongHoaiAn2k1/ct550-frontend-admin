@@ -20,7 +20,8 @@
                     <el-option label="Khách hàng thân thiết" value="loyal_customer" />
 
                 </el-select>
-                <span class="ms-2" style="font-size: 14px">Kết quả: {{ dataSearch.length }} </span>
+                <span class="ms-2" style="font-size: 14px">Kết quả: {{ search != '' ? dataSearch.length : totalUser }}
+                </span>
             </div>
             <span class="counter pull-right"></span>
             <table class="table table-hover table-bordered results">

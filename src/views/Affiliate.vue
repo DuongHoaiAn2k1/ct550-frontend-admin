@@ -87,6 +87,12 @@
                         <el-tab-pane label="Yêu cầu rút tiền">
                             <WithdrawalTable />
                         </el-tab-pane>
+                        <el-tab-pane label="Danh sách đơn">
+                            <AffiliateOrderSaleTable />
+                        </el-tab-pane>
+                        <el-tab-pane label="Thống kê">
+                            <StatisticsAffiliate  />
+                        </el-tab-pane>
                     </el-tabs>
 
 
@@ -112,7 +118,9 @@ import affiliateService from '../services/affiliate.service';
 import { initializeEcho } from '../pusher/echoConfig';
 import { convertTime } from '../helpers/UtilHelper'
 import CommissionTable from '../components/Tables/CommissionTable.vue';
+import AffiliateOrderSaleTable from '../components/Tables/AffiliateOrderSaleTable.vue';
 import AffiliateTable from '../components/Tables/AffiliateTable.vue';
+import StatisticsAffiliate from '../components/Tables/StatisticsAffiliate.vue';
 import WithdrawalTable from '../components/Tables/WithdrawalTable.vue';
 import { showSuccess } from '../helpers/NotificationHelper';
 import { showLoading } from '../helpers/LoadingHelper';

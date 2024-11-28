@@ -44,7 +44,7 @@
                 <tbody>
                     <tr v-for="(order, index) in dataSearch" :key="order.order_id">
                         <th scope="row">{{ index + 1 }}</th>
-                        <td>#{{ order.bill_id }}</td>
+                        <td>{{ order.bill_id }}</td>
                         <td>
                             <span class="badge rounded-pill text-success font-size-11 task-status">Đã giao</span>
                         </td>
@@ -183,7 +183,13 @@ const chartOptions = ref({
     maintainAspectRatio: false,
     scales: {
         y: {
-            beginAtZero: true
+            beginAtZero: true,
+            ticks: {
+                callback: function (value) {
+                    // Thêm đơn vị VND vào các giá trị trục Y
+                    return value.toLocaleString() + ' đ';
+                }
+            }
         }
     },
     plugins: {
@@ -196,6 +202,15 @@ const chartOptions = ref({
         },
         datalabels: {
             display: true
+        },
+        tooltip: {
+            callbacks: {
+                label: function (context) {
+                    // Định dạng tooltip với đơn vị VND
+                    const value = context.raw;
+                    return `${value.toLocaleString()} đ`;
+                }
+            }
         }
     }
 });

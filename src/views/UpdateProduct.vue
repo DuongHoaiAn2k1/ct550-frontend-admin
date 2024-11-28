@@ -1,8 +1,8 @@
 <template>
   <div id="layoutSidenav_content">
     <div class="container-fluid px-4">
-      <ProductForm :formTitle="'CẬP NHẬT SẢN PHẨM'" :submitButtonText="'Cập nhật'" :initialProductData="product"
-        :onSubmit="updateProduct" />
+      <ProductForm v-if="Object.keys(product).length > 0" :formTitle="'CẬP NHẬT SẢN PHẨM'"
+        :submitButtonText="'Cập nhật'" :initialProductData="product" :onSubmit="updateProduct" />
     </div>
   </div>
 </template>
@@ -16,17 +16,13 @@ import { showSuccess } from '../helpers/NotificationHelper'
 import { useRoute } from "vue-router";
 
 const route = useRoute();
-const productStore = useProductStore();
 const product = ref({});
 const productId = computed(() => route.params.id);
 
 onMounted(async () => {
-
   const response = await productService.get(productId.value);
-  product.value = response.data;
-  setTimeout(() => {
-    console.log('Product fetch::::: upate::::', product.value);
-  }, 2000);
+  product.value = response.data[0];
+  console.log("Dữ liệu product sau khi tải:", product.value);
 });
 
 const updateProduct = async (productData) => {

@@ -6,15 +6,20 @@
 
         <div class="card mb-4">
           <div class="card-header">
+            <input v-model="search" type="text" class="search form-control form-design"
+              placeholder="Nhập từ khóa tìm kiếm" />
             <el-button @click="sortOrderShow('today')">Hôm nay</el-button>
             <el-button @click="sortOrderShow('all')">Tất cả</el-button>
             <el-date-picker class="ms-3" v-model="dateSelect" type="daterange" range-separator="Đến"
               start-placeholder="Ngày bắt đầu" end-placeholder="Ngày kết thúc" :size="size" />
             <el-button @click="sortDate">Lọc</el-button>
-            <span v-show="todayOrderShow" class="ms-2" style="font-size: 14px">Kết quả: {{ todayOrderStore.length
+            <span v-show="todayOrderShow" class="ms-2" style="font-size: 14px">Kết quả: {{ search == '' ?
+              todayOrderStore.length : sortTodayOrderList.length
               }}</span>
-            <span v-show="allOrderShow" class="ms-2" style="font-size: 14px">Kết quả: {{ orderLength }}</span>
-            <span v-show="byDateOrderShow" class="ms-2" style="font-size: 14px">Kết quả: {{ orderByDateLength }}</span>
+            <span v-show="allOrderShow" class="ms-2" style="font-size: 14px">Kết quả: {{ search == '' ? orderLength :
+              orderListAll.length }}</span>
+            <span v-show="byDateOrderShow" class="ms-2" style="font-size: 14px">Kết quả: {{ search == '' ?
+              orderByDateLength : sortBydayOrderList.length }}</span>
           </div>
           <div class="card-body">
             <div class="form-group pull-right contain-search"></div>
@@ -43,7 +48,7 @@
               <tbody>
                 <tr v-show="todayOrderShow" v-for="(data, index) in sortTodayOrderList" :key="data.order_id">
                   <th scope="row">{{ index + 1 }}</th>
-                  <td>#{{ data.bill_id }}</td>
+                  <td>{{ data.bill_id }}</td>
                   <td>
                     <img :src="apiUrl +
                       JSON.parse(data.order_detail[0]?.product?.product_img)[0]
@@ -80,7 +85,7 @@
 
                 <tr v-show="allOrderShow" v-for="(data, index) in orderListAll" :key="data.order_id">
                   <th scope="row">{{ index + 1 }}</th>
-                  <td>#{{ data.bill_id }}</td>
+                  <td>{{ data.bill_id }}</td>
                   <td>
                     <img :src="apiUrl +
                       JSON.parse(data.order_detail[0].product.product_img)[0]
@@ -116,7 +121,7 @@
                 </tr>
                 <tr v-show="byDateOrderShow" v-for="(data, index) in sortBydayOrderList" :key="data.order_id">
                   <th scope="row">{{ index + 1 }}</th>
-                  <td>#{{ data.bill_id }}</td>
+                  <td>{{ data.bill_id }}</td>
                   <td>
                     <img :src="apiUrl +
                       JSON.parse(data.order_detail[0].product.product_img)[0]
@@ -155,15 +160,17 @@
             <div class="text-end">
               <el-pagination v-show="todayOrderShow" v-model:current-page="currentPage"
                 @current-change="handleCurrentChange" size="small" background layout="prev, pager, next"
-                :total="Math.ceil(todayOrderStore.length / pageSize) * 10" class="mt-4" />
+                :total="Math.ceil((search == '' ? todayOrderStore.length : sortTodayOrderList.length) / pageSize) * 10"
+                class="mt-4" />
 
               <el-pagination v-show="allOrderShow" v-model:current-page="currentPage"
                 @current-change="handleCurrentChange" size="small" background layout="prev, pager, next"
-                :total="Math.ceil(orderLength / pageSize) * 10" class="mt-4" />
+                :total="Math.ceil((search == '' ? orderLength : orderListAll.length) / pageSize) * 10" class="mt-4" />
 
               <el-pagination v-show="byDateOrderShow" v-model:current-page="currentPage"
                 @current-change="handleCurrentChange" size="small" background layout="prev, pager, next"
-                :total="Math.ceil(orderByDateLength / pageSize) * 10" class="mt-4" />
+                :total="Math.ceil((search == '' ? orderByDateLength : sortBydayOrderList.length) / pageSize) * 10"
+                class="mt-4" />
             </div>
           </div>
         </div>
@@ -181,6 +188,7 @@ import { useTodayOrder } from "../stores/todayOrder";
 import { initializeEcho } from "../pusher/echoConfig";
 const apiUrl = import.meta.env.VITE_APP_API_URL;
 
+const search = ref("");
 const echoInstance = initializeEcho();
 echoInstance.channel('admin-channel')
   .listen('.order.cancelled', async (event) => {
@@ -194,7 +202,7 @@ echoInstance.channel('admin-channel')
 
 echoInstance.channel('payment-set-status')
   .listen('.preparing', async (event) => {
-    
+
     if (todayOrderShow.value) {
       todayOrderStore.fetchTodayOrderList();
     }
@@ -297,8 +305,18 @@ const sortOrderShow = (type) => {
 //
 
 const sortTodayOrderList = computed(() => {
+  const dataSearch = String(search.value).trim();
   const startIndex = (currentPage.value - 1) * pageSize;
-  return todayOrderStore.todayOrderList.slice(startIndex, startIndex + pageSize);
+  const todayOrderList = todayOrderStore.todayOrderList;
+  if (!dataSearch) {
+    return todayOrderList.slice(startIndex, startIndex + pageSize);
+  }
+
+  return todayOrderList.filter((data) => {
+    return String(data.bill_id)
+      .toLowerCase()
+      .includes(dataSearch.toLowerCase());
+  });
 });
 
 const listOrderByDate = ref([]);
@@ -327,8 +345,17 @@ const sortDate = () => {
 };
 
 const sortBydayOrderList = computed(() => {
+  const dataSearch = String(search.value).trim();
   const startIndex = (currentPage.value - 1) * pageSize;
-  return listOrderByDate.value.slice(startIndex, startIndex + pageSize);
+  if (!dataSearch) {
+    return listOrderByDate.value.slice(startIndex, startIndex + pageSize);
+  }
+
+  return listOrderByDate.value.filter((data) => {
+    return String(data.bill_id)
+      .toLowerCase()
+      .includes(dataSearch.toLowerCase());
+  });
 });
 
 watch(() => todayOrderStore.length, (newValue) => {
@@ -379,9 +406,17 @@ const handleCurrentChange = (val) => {
 };
 
 const orderListAll = computed(() => {
+  const dataSearch = String(search.value).trim();
   const startIndex = (currentPage.value - 1) * pageSize;
-  // Sử dụng filteredOrders.value thay vì listOrder.value
-  return listOrder.value.slice(startIndex, startIndex + pageSize);
+  const listOrderToday = listOrder.value;
+  if (!dataSearch) {
+    return listOrderToday.slice(startIndex, startIndex + pageSize);
+  }
+  return listOrderToday.filter((data) => {
+    return String(data.bill_id)
+      .toLowerCase()
+      .includes(dataSearch.toLowerCase());
+  });
 });
 
 
@@ -460,8 +495,8 @@ const sortByStatus = () => {
 }
 
 .form-design {
-  width: 220px;
-  margin-left: 993px;
+  width: 280px;
+  margin-bottom: 4px;
 }
 
 .design-input {
