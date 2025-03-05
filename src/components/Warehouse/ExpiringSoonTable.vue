@@ -186,7 +186,7 @@ import { showLoading } from '../../helpers/LoadingHelper';
 import { formatCurrency } from '../../helpers/UtilHelper'
 import promotionService from '@/services/promotion.service';
 import { showWarning, showSuccess } from '../../helpers/NotificationHelper';
-import { showSuccessMessage, showWarning } from '../../helpers/NotificationHelper';
+import { showSuccessMessage } from '../../helpers/NotificationHelper';
 
 const discountError = ref('');
 const dateSelect = ref([]);

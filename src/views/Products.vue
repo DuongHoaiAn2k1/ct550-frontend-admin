@@ -72,7 +72,7 @@
                     <el-popconfirm confirm-button-text="Yes" cancel-button-text="No" width="200"
                       confirm-button-type="danger" title="Bạn có muốn xóa?" @confirm="handleDelete(product.product_id)">
                       <template #reference>
-                        <el-button type="danger">Xóa</el-button>
+                        <el-button type="danger" disabled>Xóa</el-button>
                       </template>
                     </el-popconfirm>
                   </td>

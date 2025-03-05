@@ -129,7 +129,8 @@
     <div> <el-date-picker v-model="yearSelect" type="year" placeholder="Chọn năm" /><el-button
             @click="sortByYear">Lọc</el-button></div>
     <div class="card mb-4">
-        <ProvinceOrderChart :provinceData="provinceData" chartTitle="Số lượng đơn hàng theo tỉnh năm 2023" />
+        <ProvinceOrderChart :provinceData="provinceData"
+            :chartTitle="'Số lượng đơn hàng theo tỉnh năm ' + yearSelect.getFullYear()" />
     </div>
 
 

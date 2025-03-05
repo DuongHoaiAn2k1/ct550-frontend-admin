@@ -2,7 +2,7 @@
     <div id="invoice">
         <h4 class="text-center">SHOP</h4>
         <h3 class="text-center">Hóa đơn</h3>
-        <p class="text-muted p-0"><span class="fw-bold">Số:</span> #{{ billId }}</p>
+        <p class="text-muted p-0"><span class="fw-bold">Số hóa đơn:</span> {{ billId }}</p>
         <p class="text-muted p-0"><span class="fw-bold">Tên khách hàng:</span> {{ customerName }}</p>
         <p class="text-muted p-0"><span class="fw-bold">Ngày đặt:</span> {{ date }}</p>
         <p class="text-muted p-0"><span class="fw-bold">Địa chỉ:</span> {{ formattedAddress }}</p>
@@ -88,7 +88,7 @@ const generateInvoice = () => {
         content: [
             { text: 'SHOP', style: 'header', alignment: 'center' },
             { text: 'Hóa đơn', style: 'header', alignment: 'center', margin: [0, 0, 0, 20] },
-            { text: `Số: #${props.billId}` },
+            { text: `Số hóa đơn: ${props.billId}` },
             { text: `Tên khách hàng: ${props.customerName}` },
             { text: `Ngày đặt: ${props.date}` },
             { text: `Địa chỉ: ${formattedAddress.value}` },

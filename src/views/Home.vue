@@ -89,7 +89,7 @@
                       confirm-button-type="danger" title="Bạn có muốn xóa?"
                       @confirm="handleDelete(category.category_id)">
                       <template #reference>
-                        <el-button v-show="index !== editingIndex" type="danger">Xóa</el-button>
+                        <el-button v-show="index !== editingIndex" type="danger" disabled>Xóa</el-button>
                       </template>
                     </el-popconfirm>
                     <button v-show="index === editingIndex" type="button" class="btn btn-sm btn-success"

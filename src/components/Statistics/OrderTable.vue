@@ -99,9 +99,9 @@ const search = ref('');
 const listOrder = ref([]);
 const listOrderLength = ref(0);
 const monthlyRevenueData = ref([]);
-const statisticOrder = async () => {
+const statisticOrder = async (data) => {
     try {
-        const response = await statisticService.statisticOrder();
+        const response = await statisticService.statisticOrder(data);
         listOrder.value = response.data;
         listOrderLength.value = response.data.length;
         console.log("List order: ", response);

@@ -28,7 +28,7 @@
             class="fa-solid fa-bell"></i>
           <span class="badge rounded-pill badge-notification bg-danger sub-cart-design">{{
             unReadNumber || 0
-            }}</span></a>
+          }}</span></a>
 
         <div v-if="isNotiticationBox && authStore.isAdminLoggedIn" class="notification-container">
           <Notification />
@@ -115,9 +115,9 @@ echoInstance.channel('admin-channel')
       fetchNotifications();
       productBatchStore.fetchListProductBatch();
       todayOrderStore.fetchTodayOrderList();
-      setTimeout(() => {
-        showMessageBTRight('Đơn hàng mới', 'Vừa tiếp nhận đơn hàng mới');
-      }, 500);
+      // setTimeout(() => {
+      //   showMessageBTRight('Đơn hàng mới', 'Vừa tiếp nhận đơn hàng mới');
+      // }, 500);
     }, 2000);
 
   });
